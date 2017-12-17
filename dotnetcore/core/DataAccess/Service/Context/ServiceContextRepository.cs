@@ -1,4 +1,4 @@
-﻿namespace Service.Context
+﻿namespace DataAccess.Service.Context
 {
     using Platform.Context;
 

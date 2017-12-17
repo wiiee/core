@@ -1,9 +1,9 @@
-﻿namespace Service
+﻿namespace DataAccess.Service
 {
     using DataAccess.Database.Base;
     using DataAccess.Database.Manager;
-    using Entity;
     using Microsoft.Extensions.Logging;
+    using Platform.Data;
     using Platform.Util;
     using System;
     using System.Collections.Concurrent;

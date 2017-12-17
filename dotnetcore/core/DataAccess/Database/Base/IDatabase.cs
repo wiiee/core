@@ -1,6 +1,6 @@
 ﻿namespace DataAccess.Database.Base
 {
-    using Entity;
+    using Platform.Data;
 
     public interface IDatabase
     {

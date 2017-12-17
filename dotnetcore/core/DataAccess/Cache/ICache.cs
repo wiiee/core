@@ -1,6 +1,6 @@
-﻿namespace Cache
+﻿namespace DataAccess.Cache
 {
-    using Entity;
+    using Platform.Data;
     using System.Collections.Generic;
 
     public interface ICache<T>

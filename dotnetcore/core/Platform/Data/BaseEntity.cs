@@ -1,4 +1,4 @@
-﻿namespace Entity
+﻿namespace Platform.Data
 {
     public abstract class BaseEntity : IEntity
     {

@@ -1,8 +1,8 @@
 ﻿namespace DataAccess.Database.Impl.MongoDb
 {
     using Base;
-    using Entity;
     using MongoDB.Driver;
+    using Platform.Data;
     using System.Threading.Tasks;
 
     public class MongoDbImpl : IDatabase

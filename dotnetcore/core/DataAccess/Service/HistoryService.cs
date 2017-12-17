@@ -1,6 +1,6 @@
-﻿namespace Service.History
+﻿namespace DataAccess.Service
 {
-    using Entity.History;
+    using Platform.Data;
 
     public class HistoryService : BaseService<History>
     {

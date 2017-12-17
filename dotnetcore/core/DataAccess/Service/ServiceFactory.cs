@@ -1,4 +1,4 @@
-﻿namespace Service
+﻿namespace DataAccess.Service
 {
     using Context;
     using Microsoft.Extensions.Logging;

@@ -1,8 +1,7 @@
-﻿namespace Service
+﻿namespace DataAccess.Service
 {
     using Cache;
     using DataAccess.Database.Base;
-    using Entity;
     using Microsoft.Extensions.Logging;
     using Platform.Context;
     using Platform.Extension;
@@ -14,11 +13,9 @@
     using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Platform.Setting;
-    using Service.History;
-    using Entity.History;
     using Newtonsoft.Json;
-    using Service.Context;
     using DataAccess.Database.Manager;
+    using Platform.Data;
 
     public abstract class BaseService<T> : IService
         where T : IEntity
@@ -242,7 +239,7 @@
             {
                 try
                 {
-                    if(typeof(T) != typeof(Entity.History.History))
+                    if(typeof(T) != typeof(History))
                     {
                         ProcessHistory(HistoryType.Create, entity.Id, JsonConvert.SerializeObject(entity), this.GetContext().UserId);
                     }
@@ -515,7 +512,7 @@
                 case HistoryType.Create:
                     var historyInfos = new List<HistoryInfo>();
                     historyInfos.Add(new HistoryInfo(data, userId, DateTime.Now, type));
-                    _historyService.Create(new Entity.History.History(GetHistoryId(id), historyInfos));
+                    _historyService.Create(new History(GetHistoryId(id), historyInfos));
                     break;
                 case HistoryType.Update:
                 case HistoryType.Delete:

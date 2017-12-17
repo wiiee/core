@@ -1,4 +1,4 @@
-﻿namespace Entity.History
+﻿namespace Platform.Data
 {
     public enum HistoryType
     {

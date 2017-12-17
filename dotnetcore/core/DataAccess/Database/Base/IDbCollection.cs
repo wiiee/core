@@ -1,7 +1,7 @@
 ﻿namespace DataAccess.Database.Base
 {
-    using Entity;
     using MongoDB.Driver;
+    using Platform.Data;
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
