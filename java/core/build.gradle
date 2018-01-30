@@ -16,7 +16,7 @@ subprojects {
     apply plugin: 'java'
     compileJava.options.encoding = 'UTF-8'
 
-    group = "com.core"
+    group = "com.wiiee.core"
     version = '0.1.0'
 
     sourceCompatibility = 1.8
@@ -43,10 +43,22 @@ project(':platform') {
     }
 }
 
-project(':dataaccess') {
+project(':domain') {
     apply plugin: 'org.springframework.boot'
 
     bootRepackage {
         enabled = false
     }
+}
+
+project(':web') {
+    apply plugin: 'org.springframework.boot'
+
+    bootRepackage {
+        enabled = false
+    }
+}
+
+project(':sample') {
+    apply plugin: 'org.springframework.boot'
 }

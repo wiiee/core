@@ -1,4 +1,6 @@
 rootProject.name = "core"
 
 include "platform"
-include "dataaccess"
+include "domain"
+include "web"
+include "sample"
