@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.6.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
         //classpath("org.springframework:springloaded:1.2.0.RELEASE")
     }
 }
@@ -24,22 +24,23 @@ allprojects {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
+    jar {
+        manifest {
+            attributes(
+                    "Implementation-Title": "Gradle",
+                    "Implementation-Version": version
+            )
+        }
+
+        baseName = "wiiee-core-$project.name"
+    }
+
     repositories {
         mavenLocal()
         maven {
             url 'http://maven.aliyun.com/nexus/content/groups/public/'
         }
         mavenCentral()
-    }
-
-    jar {
-        manifest.attributes provider: 'gradle'
-    }
-}
-
-subprojects {
-    tasks.withType(Jar) {
-        baseName = "com.wiiee.core-$project.name"
     }
 }
 
