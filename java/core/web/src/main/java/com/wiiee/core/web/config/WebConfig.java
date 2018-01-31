@@ -1,4 +1,4 @@
-package com.wiiee.core.sample.config;
+package com.wiiee.core.web.config;
 
 import com.wiiee.core.web.interceptor.ContextInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;

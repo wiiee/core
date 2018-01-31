@@ -1,4 +1,4 @@
-package com.wiiee.core.sample.api;
+package com.wiiee.core.web.api;
 
 import com.wiiee.core.platform.config.FeatureConfig;
 import org.springframework.beans.factory.annotation.Autowired;
