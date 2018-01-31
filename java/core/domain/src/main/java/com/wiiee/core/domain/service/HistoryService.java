@@ -8,6 +8,7 @@ import com.wiiee.core.platform.log.LogSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,9 @@ public class HistoryService extends BaseService<History, String> implements IHis
     private LogSender logSender;
 
     @Autowired
+    private CacheManager cacheManager;
+
+    @Autowired
     public HistoryService(MongoRepository<History, String> repository) {
         super(repository);
     }
@@ -35,6 +39,7 @@ public class HistoryService extends BaseService<History, String> implements IHis
     public void init(){
         _setContextRepository(contextRepository);
         _setLogSender(logSender);
+        _setCacheManager(cacheManager);
     }
 
     @Override

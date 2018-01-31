@@ -3,11 +3,13 @@ package com.wiiee.core.domain.service;
 import com.wiiee.core.platform.constant.HistoryType;
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.data.IData;
 import com.wiiee.core.platform.data.HistoryInfo;
+import com.wiiee.core.platform.data.IData;
 import com.wiiee.core.platform.log.LogItem;
 import com.wiiee.core.platform.log.LogSender;
 import com.wiiee.core.platform.util.GsonUtil;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -24,17 +26,22 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
     private static IContextRepository _contextRepository;
     private static LogSender _logSender;
+    private static CacheManager _cacheManager;
 
     public BaseService(MongoRepository<T, Id> repository) {
         this.repository = repository;
     }
 
-    public void _setContextRepository(IContextRepository contextRepository){
+    public void _setContextRepository(IContextRepository contextRepository) {
         _contextRepository = contextRepository;
     }
 
-    public void _setLogSender(LogSender logSender){
+    public void _setLogSender(LogSender logSender) {
         _logSender = logSender;
+    }
+
+    public void _setCacheManager(CacheManager cacheManager) {
+        _cacheManager = cacheManager;
     }
 
     @Override
@@ -50,8 +57,27 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         return repository.findAll();
     }
 
+    private Cache getCache() {
+        return _cacheManager.getCache(this.getClass().getSimpleName());
+    }
+
+    private T getCacheEntry(Id id) {
+        Cache cache = getCache();
+
+        if (cache != null) {
+            Object entry = cache.get(id);
+
+            if (entry != null && this.getClass().isInstance(entry)) {
+                return (T) entry;
+            }
+        }
+
+        return null;
+    }
+
     public T get(Id id) {
-        return repository.findOne(id);
+        T entry = getCacheEntry(id);
+        return entry != null ? entry : repository.findOne(id);
     }
 
     public List<T> get(Sort sort) {
@@ -71,56 +97,80 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     }
 
     public T create(T entity) {
-        if(!isHistoryService()){
+        T result = repository.insert(entity);
+
+//        if (entity.getId() == null) {
+//            entity.setId((Id) ObjectId.get());
+//        }
+
+        if (!isHistoryService()) {
             _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
         }
 
-        return repository.insert(entity);
+        getCache().put(result.getId(), result);
+
+        return result;
     }
 
     public List<T> create(Iterable<T> entities) {
-        if(!isHistoryService()){
+        List<T> result = repository.insert(entities);
+
+        if (!isHistoryService()) {
             for (T entity : entities) {
                 _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
             }
         }
 
-        return repository.insert(entities);
+        for (T entity : result) {
+            getCache().put(entity.getId(), entity);
+        }
+
+        return result;
     }
 
     public void update(T entity) {
-        if(!isHistoryService()){
+        repository.save(entity);
+
+        if (!isHistoryService()) {
             _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
         }
 
-        repository.save(entity);
+        getCache().put(entity.getId(), entity);
     }
 
     public void update(Iterable<T> entities) {
-        if(!isHistoryService()){
+        repository.save(entities);
+
+        if (!isHistoryService()) {
             for (T entity : entities) {
                 _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
             }
         }
 
-        repository.save(entities);
+        for (T entity : entities) {
+            getCache().put(entity.getId(), entity);
+        }
     }
 
     public void delete(Id id) {
-        if(!isHistoryService()){
+        repository.delete(id);
+
+        if (!isHistoryService()) {
             _logSender.send(buildLogItem(buildId(id), null, HistoryType.Delete));
         }
 
-        repository.delete(id);
+        getCache().evict(id);
     }
 
     public void delete(Iterable<T> entities) {
+        repository.delete(entities);
+
         for (T entity : entities) {
-            if(!isHistoryService()){
+            if (!isHistoryService()) {
                 _logSender.send(buildLogItem(buildId(entity.getId()), null, HistoryType.Delete));
             }
 
-            this.delete(entity.getId());
+            getCache().evict(entity.getId());
         }
     }
 
@@ -128,11 +178,11 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         return this.getClass().getName() + "_" + id;
     }
 
-    private LogItem buildLogItem(String id, String data, HistoryType type){
+    private LogItem buildLogItem(String id, String data, HistoryType type) {
         return new LogItem(id, new HistoryInfo(data, getContext().getUserId(), new Date(), type));
     }
 
-    private boolean isHistoryService(){
+    private boolean isHistoryService() {
         return this instanceof HistoryService;
     }
 }
