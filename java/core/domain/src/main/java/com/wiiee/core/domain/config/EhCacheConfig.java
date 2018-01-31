@@ -20,7 +20,7 @@ public class EhCacheConfig {
 //        return new EhCacheCacheManager(ehCacheCacheManager().getObject());
 //    }
 //
-//    @Value("classpath:ehcache3.xml")
+//    @Value("classpath:ehcache3-history.xml")
 //    public Resource configLocation;
 //
 //    @Bean
