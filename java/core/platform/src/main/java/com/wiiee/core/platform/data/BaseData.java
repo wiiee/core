@@ -23,4 +23,12 @@ public abstract class BaseData<TId extends Serializable> implements IData<TId> {
     public TId getId(){
         return id;
     }
+
+    public void setId(TId id) {
+        if(id != null){
+            //ToDo: throw exception
+        }
+
+        this.id = id;
+    }
 }
