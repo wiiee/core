@@ -31,8 +31,6 @@ allprojects {
                     "Implementation-Version": version
             )
         }
-
-        baseName = "wiiee-core-$project.name"
     }
 
     repositories {
