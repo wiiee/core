@@ -1,4 +1,4 @@
-package com.wiiee.core.web.config;
+package com.wiiee.core.domain.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

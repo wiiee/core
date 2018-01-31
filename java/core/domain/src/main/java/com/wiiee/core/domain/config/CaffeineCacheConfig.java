@@ -1,4 +1,4 @@
-package com.wiiee.core.web.config;
+package com.wiiee.core.domain.config;
 
 
 import org.springframework.cache.annotation.EnableCaching;
