@@ -61,6 +61,22 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         return _cacheManager.getCache(this.getClass().getSimpleName());
     }
 
+    private void putCacheEntry(Id id, T entity){
+        Cache cache = getCache();
+
+        if(cache != null){
+            cache.put(id, entity);
+        }
+    }
+
+    private void evictCacheEntry(Id id){
+        Cache cache = getCache();
+
+        if(cache != null){
+            cache.evict(id);
+        }
+    }
+
     private T getCacheEntry(Id id) {
         Cache cache = getCache();
 
@@ -107,7 +123,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
             _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
         }
 
-        getCache().put(result.getId(), result);
+        putCacheEntry(result.getId(), result);
 
         return result;
     }
@@ -122,7 +138,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         }
 
         for (T entity : result) {
-            getCache().put(entity.getId(), entity);
+            putCacheEntry(entity.getId(), entity);
         }
 
         return result;
@@ -135,7 +151,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
             _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
         }
 
-        getCache().put(entity.getId(), entity);
+        putCacheEntry(entity.getId(), entity);
     }
 
     public void update(Iterable<T> entities) {
@@ -148,7 +164,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         }
 
         for (T entity : entities) {
-            getCache().put(entity.getId(), entity);
+            putCacheEntry(entity.getId(), entity);
         }
     }
 
@@ -159,7 +175,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
             _logSender.send(buildLogItem(buildId(id), null, HistoryType.Delete));
         }
 
-        getCache().evict(id);
+        evictCacheEntry(id);
     }
 
     public void delete(Iterable<T> entities) {
@@ -170,7 +186,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
                 _logSender.send(buildLogItem(buildId(entity.getId()), null, HistoryType.Delete));
             }
 
-            getCache().evict(entity.getId());
+            evictCacheEntry(entity.getId());
         }
     }
 
