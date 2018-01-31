@@ -15,7 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -28,8 +28,11 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     private static LogSender _logSender;
     private static CacheManager _cacheManager;
 
-    public BaseService(MongoRepository<T, Id> repository) {
+    private Class<T> entityClazz;
+
+    public BaseService(MongoRepository<T, Id> repository, Class<T> entityClazz) {
         this.repository = repository;
+        this.entityClazz = entityClazz;
     }
 
     public void _setContextRepository(IContextRepository contextRepository) {
@@ -115,10 +118,6 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     public T create(T entity) {
         T result = repository.insert(entity);
 
-//        if (entity.getId() == null) {
-//            entity.setId((Id) ObjectId.get());
-//        }
-
         if (!isHistoryService()) {
             _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
         }
@@ -191,11 +190,11 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     }
 
     private String buildId(Id id) {
-        return this.getClass().getName() + "_" + id;
+        return entityClazz.getName() + "_" + id;
     }
 
     private LogItem buildLogItem(String id, String data, HistoryType type) {
-        return new LogItem(id, new HistoryInfo(data, getContext().getUserId(), new Date(), type));
+        return new LogItem(id, new HistoryInfo(data, getContext().getUserId(), LocalDateTime.now(), type));
     }
 
     private boolean isHistoryService() {

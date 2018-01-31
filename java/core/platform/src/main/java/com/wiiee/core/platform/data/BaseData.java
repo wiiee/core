@@ -16,7 +16,6 @@ public abstract class BaseData<TId extends Serializable> implements IData<TId> {
     }
 
     public BaseData(){
-
     }
 
     @Override
@@ -24,7 +23,6 @@ public abstract class BaseData<TId extends Serializable> implements IData<TId> {
         return id;
     }
 
-    @Override
     public void setId(TId id) {
         if(id != null){
             //ToDo: throw exception

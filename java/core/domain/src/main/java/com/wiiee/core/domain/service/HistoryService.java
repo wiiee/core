@@ -32,7 +32,7 @@ public class HistoryService extends BaseService<History, String> implements IHis
 
     @Autowired
     public HistoryService(MongoRepository<History, String> repository) {
-        super(repository);
+        super(repository, History.class);
     }
 
     @PostConstruct
@@ -45,7 +45,7 @@ public class HistoryService extends BaseService<History, String> implements IHis
     @Override
     public synchronized void process(LogItem item) {
         try{
-            switch (item.getHistoryInfo().getType()) {
+            switch (item.getHistoryInfo().type) {
                 case Create:
                     create(new History(item.getId(), item.getHistoryInfo()));
                     break;

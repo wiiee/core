@@ -8,5 +8,4 @@ import java.util.Date;
  */
 public interface IData<Id extends Serializable> {
     Id getId();
-    void setId(Id id);
 }
