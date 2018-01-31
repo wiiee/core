@@ -12,8 +12,10 @@ buildscript {
     }
 }
 
-subprojects {
+allprojects {
     apply plugin: 'java'
+    apply plugin: 'maven'
+
     compileJava.options.encoding = 'UTF-8'
 
     group = "com.wiiee.core"
@@ -32,6 +34,12 @@ subprojects {
 
     jar {
         manifest.attributes provider: 'gradle'
+    }
+}
+
+subprojects {
+    tasks.withType(Jar) {
+        baseName = "com.wiiee.core-$project.name"
     }
 }
 
