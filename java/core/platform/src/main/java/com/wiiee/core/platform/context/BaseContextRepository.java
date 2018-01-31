@@ -25,7 +25,7 @@ public abstract class BaseContextRepository implements IContextRepository {
     public <T extends IContext> T getContext(Class<T> clazz) {
         IContext context = getCurrent();
 
-        if(context != null && context.getClass().equals(clazz)){
+        if(context != null && clazz.isInstance(context)){
             return (T)context;
         }
 
