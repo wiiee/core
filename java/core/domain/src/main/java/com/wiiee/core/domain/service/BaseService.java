@@ -61,7 +61,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     }
 
     private Cache getCache() {
-        return _cacheManager.getCache(this.getClass().getSimpleName());
+        return _cacheManager == null ? null : _cacheManager.getCache(this.getClass().getSimpleName());
     }
 
     private void putCacheEntry(Id id, T entity){
