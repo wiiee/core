@@ -1,6 +1,6 @@
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
-    compile("org.springframework.boot:spring-boot-starter-amqp")
+    compile("org.springframework:spring-web")
 
     compile("com.google.code.gson:gson:2.8.1")
 

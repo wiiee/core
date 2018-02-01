@@ -3,10 +3,10 @@ package com.wiiee.core.domain.service;
 import com.wiiee.core.platform.constant.HistoryType;
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.data.HistoryInfo;
+import com.wiiee.core.platform.history.HistoryInfo;
 import com.wiiee.core.platform.data.IData;
-import com.wiiee.core.platform.log.LogItem;
-import com.wiiee.core.platform.log.LogSender;
+import com.wiiee.core.platform.history.IHistoryService;
+import com.wiiee.core.platform.history.HistoryLogItem;
 import com.wiiee.core.platform.util.GsonUtil;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -25,8 +25,8 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     private MongoRepository<T, Id> repository;
 
     private static IContextRepository _contextRepository;
-    private static LogSender _logSender;
     private static CacheManager _cacheManager;
+    private static IHistoryService _historyService;
 
     private Class<T> entityClazz;
 
@@ -39,12 +39,12 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         _contextRepository = contextRepository;
     }
 
-    public void _setLogSender(LogSender logSender) {
-        _logSender = logSender;
-    }
-
     public void _setCacheManager(CacheManager cacheManager) {
         _cacheManager = cacheManager;
+    }
+
+    public void _setHistoryService(IHistoryService historyService){
+        _historyService = historyService;
     }
 
     @Override
@@ -119,7 +119,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         T result = repository.insert(entity);
 
         if (!isHistoryService()) {
-            _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
+            _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
         }
 
         putCacheEntry(result.getId(), result);
@@ -132,7 +132,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
         if (!isHistoryService()) {
             for (T entity : entities) {
-                _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
+                _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
             }
         }
 
@@ -147,7 +147,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         repository.save(entity);
 
         if (!isHistoryService()) {
-            _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
+            _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
         }
 
         putCacheEntry(entity.getId(), entity);
@@ -158,7 +158,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
         if (!isHistoryService()) {
             for (T entity : entities) {
-                _logSender.send(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
+                _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
             }
         }
 
@@ -171,7 +171,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         repository.delete(id);
 
         if (!isHistoryService()) {
-            _logSender.send(buildLogItem(buildId(id), null, HistoryType.Delete));
+            _historyService.process(buildLogItem(buildId(id), null, HistoryType.Delete));
         }
 
         evictCacheEntry(id);
@@ -182,7 +182,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
         for (T entity : entities) {
             if (!isHistoryService()) {
-                _logSender.send(buildLogItem(buildId(entity.getId()), null, HistoryType.Delete));
+                _historyService.process(buildLogItem(buildId(entity.getId()), null, HistoryType.Delete));
             }
 
             evictCacheEntry(entity.getId());
@@ -193,8 +193,8 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         return entityClazz.getName() + "_" + id;
     }
 
-    private LogItem buildLogItem(String id, String data, HistoryType type) {
-        return new LogItem(id, new HistoryInfo(data, getContext().getUserId(), LocalDateTime.now(), type));
+    private HistoryLogItem buildLogItem(String id, String data, HistoryType type) {
+        return new HistoryLogItem(id, new HistoryInfo(data, getContext().getUserId(), LocalDateTime.now(), type));
     }
 
     private boolean isHistoryService() {

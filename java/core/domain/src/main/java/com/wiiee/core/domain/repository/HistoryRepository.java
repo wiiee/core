@@ -1,6 +1,6 @@
 package com.wiiee.core.domain.repository;
 
-import com.wiiee.core.platform.data.History;
+import com.wiiee.core.platform.history.History;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**

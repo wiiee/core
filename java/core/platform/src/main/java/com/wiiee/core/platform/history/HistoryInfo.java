@@ -1,4 +1,4 @@
-package com.wiiee.core.platform.data;
+package com.wiiee.core.platform.history;
 
 import com.wiiee.core.platform.constant.HistoryType;
 

@@ -1,4 +1,6 @@
-package com.wiiee.core.platform.data;
+package com.wiiee.core.platform.history;
+
+import com.wiiee.core.platform.data.BaseData;
 
 import java.util.ArrayList;
 import java.util.Arrays;

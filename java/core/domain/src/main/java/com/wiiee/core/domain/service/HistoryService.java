@@ -1,10 +1,9 @@
 package com.wiiee.core.domain.service;
 
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.data.History;
-import com.wiiee.core.platform.data.IHistoryService;
-import com.wiiee.core.platform.log.LogItem;
-import com.wiiee.core.platform.log.LogSender;
+import com.wiiee.core.platform.history.History;
+import com.wiiee.core.platform.history.IHistoryService;
+import com.wiiee.core.platform.history.HistoryLogItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,6 @@ public class HistoryService extends BaseService<History, String> implements IHis
     private IContextRepository contextRepository;
 
     @Autowired
-    private LogSender logSender;
-
-    @Autowired
     private CacheManager cacheManager;
 
     @Autowired
@@ -38,12 +34,12 @@ public class HistoryService extends BaseService<History, String> implements IHis
     @PostConstruct
     public void init(){
         _setContextRepository(contextRepository);
-        _setLogSender(logSender);
+        _setHistoryService(this);
         _setCacheManager(cacheManager);
     }
 
     @Override
-    public synchronized void process(LogItem item) {
+    public void process(HistoryLogItem item) {
         try{
             switch (item.getHistoryInfo().type) {
                 case Create:
