@@ -24,7 +24,7 @@ public abstract class EnumUtil {
             Object[] items = e.getEnumConstants();
 
             Method[] methods = e.getDeclaredMethods();
-            Method method = Arrays.stream(methods).filter(o -> o.getName().equals("value")).findFirst().get();
+            Method method = Arrays.stream(methods).filter(o -> o.getName().equals("value")).findAny().orElse(null);
 
             for(Object item : items){
                 pairs.add(new Pair<>(item.toString(), method == null ? item.toString() : method.invoke(item)));
