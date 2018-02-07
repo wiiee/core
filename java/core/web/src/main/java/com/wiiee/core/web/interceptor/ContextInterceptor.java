@@ -1,7 +1,7 @@
 package com.wiiee.core.web.interceptor;
 
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.log.EsItem;
+import com.wiiee.core.platform.log.EsLogEntry;
 import com.wiiee.core.platform.log.EsLogger;
 import com.wiiee.core.web.context.WebContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        esLogger.log(new EsItem(System.currentTimeMillis() - startTime.get()), contextRepository.getCurrent());
+        esLogger.log(new EsLogEntry(System.currentTimeMillis() - startTime.get()));
     }
 
     @Override

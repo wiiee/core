@@ -2,8 +2,9 @@ package com.wiiee.core.domain.service;
 
 import com.wiiee.core.platform.context.IContextRepository;
 import com.wiiee.core.platform.history.History;
-import com.wiiee.core.platform.history.IHistoryService;
 import com.wiiee.core.platform.history.HistoryLogItem;
+import com.wiiee.core.platform.history.IHistoryService;
+import com.wiiee.core.platform.log.LoggerChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class HistoryService extends BaseService<History, String> implements IHis
     private CacheManager cacheManager;
 
     @Autowired
+    private LoggerChain loggerChain;
+
+    @Autowired
     public HistoryService(MongoRepository<History, String> repository) {
         super(repository, History.class);
     }
@@ -36,6 +40,7 @@ public class HistoryService extends BaseService<History, String> implements IHis
         _setContextRepository(contextRepository);
         _setHistoryService(this);
         _setCacheManager(cacheManager);
+        _setLoggerChain(loggerChain);
     }
 
     @Override
@@ -47,7 +52,7 @@ public class HistoryService extends BaseService<History, String> implements IHis
                     break;
                 case Update:
                 case Delete:
-                    History history = get(item.getId());
+                    History history = (History) get(item.getId()).data;
                     history.addHistoryInfo(item.getHistoryInfo());
                     update(history);
                     break;

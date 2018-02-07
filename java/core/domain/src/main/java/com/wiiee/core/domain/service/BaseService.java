@@ -3,10 +3,11 @@ package com.wiiee.core.domain.service;
 import com.wiiee.core.platform.constant.HistoryType;
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.history.HistoryInfo;
 import com.wiiee.core.platform.data.IData;
-import com.wiiee.core.platform.history.IHistoryService;
+import com.wiiee.core.platform.history.HistoryInfo;
 import com.wiiee.core.platform.history.HistoryLogItem;
+import com.wiiee.core.platform.history.IHistoryService;
+import com.wiiee.core.platform.log.LoggerChain;
 import com.wiiee.core.platform.util.GsonUtil;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -27,6 +28,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     private static IContextRepository _contextRepository;
     private static CacheManager _cacheManager;
     private static IHistoryService _historyService;
+    private static LoggerChain _loggerChain;
 
     private Class<T> entityClazz;
 
@@ -43,8 +45,12 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         _cacheManager = cacheManager;
     }
 
-    public void _setHistoryService(IHistoryService historyService){
+    public void _setHistoryService(IHistoryService historyService) {
         _historyService = historyService;
+    }
+
+    public void _setLoggerChain(LoggerChain loggerChain) {
+        _loggerChain = loggerChain;
     }
 
     @Override
@@ -56,26 +62,22 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         }
     }
 
-    public List<T> get() {
-        return repository.findAll();
-    }
-
     private Cache getCache() {
         return _cacheManager == null ? null : _cacheManager.getCache(this.getClass().getSimpleName());
     }
 
-    private void putCacheEntry(Id id, T entity){
+    private void putCacheEntry(Id id, T entity) {
         Cache cache = getCache();
 
-        if(cache != null){
+        if (cache != null) {
             cache.put(id, entity);
         }
     }
 
-    private void evictCacheEntry(Id id){
+    private void evictCacheEntry(Id id) {
         Cache cache = getCache();
 
-        if(cache != null){
+        if (cache != null) {
             cache.evict(id);
         }
     }
@@ -94,98 +96,160 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         return null;
     }
 
-    public T get(Id id) {
-        T entry = getCacheEntry(id);
-        return entry != null ? entry : repository.findOne(id);
+    public ServiceResult<T> get() {
+        try {
+            return new ServiceResult(repository.findAll());
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
     }
 
-    public List<T> get(Sort sort) {
-        return repository.findAll(sort);
+    public ServiceResult<T> get(Id id) {
+        try {
+            T entry = getCacheEntry(id);
+            return new ServiceResult(entry != null ? entry : repository.findOne(id));
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
     }
 
-    public T getOne(Example<T> example) {
-        return repository.findOne(example);
+    public ServiceResult<T> get(Sort sort) {
+        try {
+            return new ServiceResult(repository.findAll(sort));
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
     }
 
-    public List<T> getAll(Example<T> example) {
-        return repository.findAll(example);
+    public ServiceResult<T> getOne(Example<T> example) {
+        try {
+            return new ServiceResult(repository.findOne(example));
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
     }
 
-    public List<T> get(Example<T> example, Sort sort) {
-        return repository.findAll(example, sort);
+    public ServiceResult<T> getAll(Example<T> example) {
+        try {
+            return new ServiceResult(repository.findAll(example));
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
     }
 
-    public T create(T entity) {
-        T result = repository.insert(entity);
-
-        if (!isHistoryService()) {
-            _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
+    public ServiceResult<T> get(Example<T> example, Sort sort) {
+        try {
+            return new ServiceResult(repository.findAll(example, sort));
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
         }
 
-        putCacheEntry(result.getId(), result);
-
-        return result;
     }
 
-    public List<T> create(Iterable<T> entities) {
-        List<T> result = repository.insert(entities);
+    public ServiceResult<T> create(T entity) {
+        try {
+            T result = repository.insert(entity);
 
-        if (!isHistoryService()) {
-            for (T entity : entities) {
+            if (!isHistoryService()) {
                 _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
             }
-        }
 
-        for (T entity : result) {
-            putCacheEntry(entity.getId(), entity);
-        }
+            putCacheEntry(result.getId(), result);
 
-        return result;
+            return new ServiceResult(result);
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
     }
 
-    public void update(T entity) {
-        repository.save(entity);
+    public ServiceResult<T> create(Iterable<T> entities) {
+        try {
+            List<T> result = repository.insert(entities);
 
-        if (!isHistoryService()) {
-            _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
+            if (!isHistoryService()) {
+                for (T entity : entities) {
+                    _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Create));
+                }
+            }
+
+            for (T entity : result) {
+                putCacheEntry(entity.getId(), entity);
+            }
+
+            return new ServiceResult(result);
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
         }
-
-        putCacheEntry(entity.getId(), entity);
     }
 
-    public void update(Iterable<T> entities) {
-        repository.save(entities);
+    public ServiceResult<T> update(T entity) {
+        try {
+            repository.save(entity);
 
-        if (!isHistoryService()) {
-            for (T entity : entities) {
+            if (!isHistoryService()) {
                 _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
             }
-        }
 
-        for (T entity : entities) {
             putCacheEntry(entity.getId(), entity);
+
+            return ServiceResult.SUCCESS;
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
         }
     }
 
-    public void delete(Id id) {
-        repository.delete(id);
+    public ServiceResult<T> update(Iterable<T> entities) {
+        try {
+            repository.save(entities);
 
-        if (!isHistoryService()) {
-            _historyService.process(buildLogItem(buildId(id), null, HistoryType.Delete));
-        }
-
-        evictCacheEntry(id);
-    }
-
-    public void delete(Iterable<T> entities) {
-        repository.delete(entities);
-
-        for (T entity : entities) {
             if (!isHistoryService()) {
-                _historyService.process(buildLogItem(buildId(entity.getId()), null, HistoryType.Delete));
+                for (T entity : entities) {
+                    _historyService.process(buildLogItem(buildId(entity.getId()), GsonUtil.toJson(entity), HistoryType.Update));
+                }
             }
 
-            evictCacheEntry(entity.getId());
+            for (T entity : entities) {
+                putCacheEntry(entity.getId(), entity);
+            }
+
+            return ServiceResult.SUCCESS;
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
+
+    }
+
+    public ServiceResult<T> delete(Id id) {
+        try {
+            repository.delete(id);
+
+            if (!isHistoryService()) {
+                _historyService.process(buildLogItem(buildId(id), null, HistoryType.Delete));
+            }
+
+            evictCacheEntry(id);
+
+            return ServiceResult.SUCCESS;
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
+        }
+    }
+
+    public ServiceResult<T> delete(Iterable<T> entities) {
+        try {
+            repository.delete(entities);
+
+            for (T entity : entities) {
+                if (!isHistoryService()) {
+                    _historyService.process(buildLogItem(buildId(entity.getId()), null, HistoryType.Delete));
+                }
+
+                evictCacheEntry(entity.getId());
+            }
+
+            return ServiceResult.SUCCESS;
+        } catch (Exception ex) {
+            return new ServiceResult(ex.getMessage());
         }
     }
 

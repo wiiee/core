@@ -9,17 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class LoggerFactory implements ApplicationContextAware {
+public class LoggerChain implements ApplicationContextAware {
     private List<ILogger> loggers;
 
-    public LoggerFactory() {
+    public LoggerChain() {
         this.loggers = new ArrayList<>();
     }
 
     //ToDo: use queue in future
-    public void log() {
+    public void log(ILogEntry entry) {
         for (ILogger logger : loggers) {
-            logger.log();
+            logger.log(entry);
         }
     }
 
