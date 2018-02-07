@@ -1,31 +1,32 @@
 package com.wiiee.core.platform.log;
 
+import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.util.GsonUtil;
 
 /**
  * Created by wiiee on 9/10/2017.
  */
-public class EsLogEntry implements ILogEntry {
+public class LogEntry implements ILogEntry {
+    public IContext context;
+
     public String groupName;
     public String className;
+    public String methodName;
+
     public int errorCode;
     public String errorMsg;
+    public long duration;
 
     public String data;
 
-    public long duration;
-
-    public EsLogEntry(long duration) {
-        this.errorCode = -1;
-        this.duration = duration;
-    }
-
-    public EsLogEntry(String groupName, String className, int errorCode, String errorMsg, Object data, long duration) {
+    public LogEntry(IContext context, String groupName, String className, String methodName, int errorCode, String errorMsg, long duration, Object data) {
+        this.context = context;
         this.groupName = groupName;
         this.className = className;
+        this.methodName = methodName;
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
-        this.data = GsonUtil.toJson(data);
         this.duration = duration;
+        this.data = GsonUtil.toJson(data);
     }
 }

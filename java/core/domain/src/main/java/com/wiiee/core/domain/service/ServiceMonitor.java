@@ -1,8 +1,7 @@
 package com.wiiee.core.domain.service;
 
-import com.wiiee.core.platform.log.EsLogEntry;
-import com.wiiee.core.platform.log.ILogEntry;
-import com.wiiee.core.platform.log.LoggerChain;
+import com.wiiee.core.platform.context.IContextRepository;
+import com.wiiee.core.platform.log.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,7 +14,10 @@ public class ServiceMonitor {
     @Autowired
     private LoggerChain loggerChain;
 
-    @Around("execution(public com.wiiee.core.domain.service.ServiceResult com.wiiee.core.domain.service.BaseService.*(..))")
+    @Autowired
+    private IContextRepository contextRepository;
+
+    @Around("execution(public ServiceResult com.wiiee.core.domain.service.BaseService.*(..))")
     public ServiceResult logService(ProceedingJoinPoint pjp) throws Throwable {
         long startTime = System.nanoTime();
         ServiceResult retVal = (ServiceResult) pjp.proceed();
@@ -25,10 +27,26 @@ public class ServiceMonitor {
         long duration = (endTime - startTime) / 1000000;
 
         if(retVal.isSuccessful){
-            entry = new EsLogEntry("Service", pjp.getTarget().getClass().getName(), -1, null, retVal.data == null ? retVal.datum : retVal.data, duration);
+            entry = new LogEntry(
+                    contextRepository.getCurrent(),
+                    Category.Service.name(),
+                    pjp.getTarget().getClass().getName(),
+                    pjp.getSignature().getName(),
+                    CommonError.NoError.value(),
+                    null,
+                    duration,
+                    retVal.data == null ? retVal.datum : retVal.data);
         }
         else{
-            entry = new EsLogEntry("Service", pjp.getTarget().getClass().getName(), 1, retVal.message, retVal.data == null ? retVal.datum : retVal.data, duration);
+            entry = new LogEntry(
+                    contextRepository.getCurrent(),
+                    Category.Service.name(),
+                    pjp.getTarget().getClass().getName(),
+                    pjp.getSignature().getName(),
+                    CommonError.ServiceError.value(),
+                    retVal.message,
+                    duration,
+                    retVal.data == null ? retVal.datum : retVal.data);
         }
 
         loggerChain.log(entry);

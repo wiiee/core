@@ -23,9 +23,9 @@ public class EsLogger implements ILogger {
 
     @Override
     public void log(ILogEntry entry) {
-        if(entry instanceof EsLogEntry){
+        if(entry instanceof LogEntry){
             System.out.println(GsonUtil.toJson(entry));
-            System.out.println(appProperties.getEsUrl());
+            System.out.println("esUrl: " + appProperties.getEsUrl());
         }
     }
 }
