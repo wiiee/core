@@ -19,7 +19,9 @@ public class LoggerChain implements ApplicationContextAware {
     //ToDo: use queue in future
     public void log(ILogEntry entry) {
         for (ILogger logger : loggers) {
-            logger.log(entry);
+            if(!logger.log(entry)){
+                return;
+            }
         }
     }
 

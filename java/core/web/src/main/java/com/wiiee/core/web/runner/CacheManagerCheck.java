@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CacheManagerCheck implements CommandLineRunner {
-
-	private static final Logger logger = LoggerFactory.getLogger(CacheManagerCheck.class);
+	private static final Logger _logger = LoggerFactory.getLogger(CacheManagerCheck.class);
 
 	private final CacheManager cacheManager;
 
@@ -20,7 +19,7 @@ public class CacheManagerCheck implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		logger.info("\n\n" + "=========================================================\n"
+		_logger.info("\n\n" + "=========================================================\n"
 				+ "Using cache manager: " + this.cacheManager.getClass().getName() + "\n"
 				+ "=========================================================\n\n");
 	}

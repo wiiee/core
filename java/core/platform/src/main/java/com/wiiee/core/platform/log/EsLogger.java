@@ -1,31 +1,32 @@
 package com.wiiee.core.platform.log;
 
-import com.wiiee.core.platform.property.AppProperties;
-import com.wiiee.core.platform.util.GsonUtil;
+import com.wiiee.core.platform.elasticsearch.repository.LogEntryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by wiiee on 9/10/2017.
  */
 @Component
 public class EsLogger implements ILogger {
-    private final RestTemplate restTemplate;
+    private static final Logger _logger = LoggerFactory.getLogger(EsLogger.class);
 
     @Autowired
-    public EsLogger(RestTemplate restTemplate){
-        this.restTemplate = restTemplate;
-    }
-
-    @Autowired
-    private AppProperties appProperties;
+    private LogEntryRepository logEntryRepository;
 
     @Override
-    public void log(ILogEntry entry) {
+    public boolean log(ILogEntry entry) {
         if(entry instanceof LogEntry){
-            System.out.println(GsonUtil.toJson(entry));
-            System.out.println("esUrl: " + appProperties.getEsUrl());
+            try {
+                logEntryRepository.save((LogEntry) entry);
+            }
+            catch (Exception ex){
+                _logger.error(ex.getMessage());
+            }
         }
+
+        return true;
     }
 }
