@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Created by wiiee on 9/10/2017.
  */
@@ -21,7 +24,8 @@ public class EsLogger implements ILogger {
     public boolean log(ILogEntry entry) {
         if(entry instanceof LogEntry && jestClient != null){
             try {
-                Index index = new Index.Builder(entry).index("core").type("log").build();
+                String indexName = "core-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+                Index index = new Index.Builder(entry).index(indexName).type("log").build();
                 jestClient.execute(index);
             }
             catch (Exception ex){
