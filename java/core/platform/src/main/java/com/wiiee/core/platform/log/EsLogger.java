@@ -1,6 +1,7 @@
 package com.wiiee.core.platform.log;
 
-import com.wiiee.core.platform.elasticsearch.repository.LogEntryRepository;
+import io.searchbox.client.JestClient;
+import io.searchbox.core.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +15,14 @@ public class EsLogger implements ILogger {
     private static final Logger _logger = LoggerFactory.getLogger(EsLogger.class);
 
     @Autowired
-    private LogEntryRepository logEntryRepository;
+    private JestClient jestClient;
 
     @Override
     public boolean log(ILogEntry entry) {
-        if(entry instanceof LogEntry){
+        if(entry instanceof LogEntry && jestClient != null){
             try {
-                logEntryRepository.save((LogEntry) entry);
+                Index index = new Index.Builder(entry).index("core").type("log").build();
+                jestClient.execute(index);
             }
             catch (Exception ex){
                 _logger.error(ex.getMessage());
