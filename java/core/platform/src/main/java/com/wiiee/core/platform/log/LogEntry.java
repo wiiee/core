@@ -34,7 +34,7 @@ public class LogEntry implements ILogEntry {
     public String data;
 
     //时间戳
-    public Timestamp timestamp;
+    public Timestamp _timestamp;
     
     public LogEntry(){}
 
@@ -62,7 +62,7 @@ public class LogEntry implements ILogEntry {
 
         this.data = GsonUtil.toJson(data);
 
-        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this._timestamp = new Timestamp(System.currentTimeMillis());
 
         return this;
     }

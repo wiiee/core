@@ -7,6 +7,8 @@ import com.wiiee.core.platform.log.LogEntryPool;
 import com.wiiee.core.platform.log.LoggerChain;
 import com.wiiee.core.web.context.WebContext;
 import com.wiiee.core.web.context.WebContextPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -22,6 +24,8 @@ import javax.servlet.http.HttpSession;
  */
 @Component
 public class ContextInterceptor extends HandlerInterceptorAdapter {
+    private static final Logger _logger = LoggerFactory.getLogger(ContextInterceptor.class);
+
     private IContextRepository contextRepository;
     private LoggerChain loggerChain;
 
@@ -65,24 +69,31 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
             methodName = method.getMethod().getName();
         }
 
-        LogEntry entry = logEntryPool.allocate()
-                .build(
-                        contextRepository.getCurrent(),
-                        "Web",
-                        className,
-                        methodName,
-                        CommonError.NoError.value(),
-                        null,
-                        contextRepository.getCurrent().getRequest(),
-                        contextRepository.getCurrent().getResponse(),
-                        elapsed_milliseconds,
-                        null);
+        try{
+            LogEntry entry = logEntryPool.allocate()
+                    .build(
+                            contextRepository.getCurrent(),
+                            "Web",
+                            className,
+                            methodName,
+                            CommonError.NoError.value(),
+                            null,
+                            contextRepository.getCurrent().getRequest(),
+                            contextRepository.getCurrent().getResponse(),
+                            elapsed_milliseconds,
+                            null);
 
-        loggerChain.log(entry);
+            loggerChain.log(entry);
+        }
+        catch (Exception ex){
+            _logger.error(ex.getMessage());
+        }
+        finally {
+            webContextPool.free(contextRepository.getContext(WebContext.class));
+        }
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        webContextPool.free(contextRepository.getContext(WebContext.class));
     }
 }
