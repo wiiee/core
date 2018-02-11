@@ -1,6 +1,7 @@
 package com.wiiee.core.web.context;
 
 import com.wiiee.core.platform.context.IContext;
+import com.wiiee.core.platform.util.GsonUtil;
 
 /**
  * Created by wang.na on 2017/03/20.
@@ -12,8 +13,8 @@ public class WebContext implements IContext {
     private String uri;
     private String remoteIp;
 
-    private Object request;
-    private Object response;
+    private String request;
+    private String response;
 
     public WebContext() {
     }
@@ -54,22 +55,22 @@ public class WebContext implements IContext {
     }
 
     @Override
-    public Object getRequest() {
+    public String getRequest() {
         return request;
     }
 
     @Override
-    public Object getResponse() {
+    public String getResponse() {
         return response;
     }
 
     @Override
     public void setRequest(Object request) {
-        this.request = request;
+        this.request = GsonUtil.toJson(request);
     }
 
     @Override
     public void setResponse(Object response) {
-        this.response = response;
+        this.response = GsonUtil.toJson(response);
     }
 }

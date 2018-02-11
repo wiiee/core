@@ -1,7 +1,10 @@
 package com.wiiee.core.domain.service;
 
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.log.*;
+import com.wiiee.core.platform.log.CommonError;
+import com.wiiee.core.platform.log.LogEntry;
+import com.wiiee.core.platform.log.LogEntryPool;
+import com.wiiee.core.platform.log.LoggerChain;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,7 +23,7 @@ public class ServiceMonitor {
     @Autowired
     private IContextRepository contextRepository;
 
-    @Around("execution(public ServiceResult com.wiiee.core.domain.service.BaseService.*(..))")
+    @Around("execution(public com.wiiee.core.domain.service.ServiceResult com..service.*Service.*(..))")
     public ServiceResult logService(ProceedingJoinPoint pjp) throws Throwable {
         long startTime = System.nanoTime();
         ServiceResult retVal = (ServiceResult) pjp.proceed();
@@ -28,35 +31,15 @@ public class ServiceMonitor {
 
         long elapsed_milliseconds = (endTime - startTime) / 1000000;
 
-        LogEntry entry = logEntryPool.allocate();
-
-        if(retVal.isSuccessful){
-            entry.build(
-                    contextRepository.getCurrent(),
-                    "BaseService",
-                    pjp.getTarget().getClass().getName(),
-                    pjp.getSignature().getName(),
-                    CommonError.NoError.value(),
-                    null,
-                    pjp.getArgs(),
-                    retVal.data == null ? retVal.datum : retVal.data,
-                    elapsed_milliseconds,
-                    null);
-        }
-        else{
-            entry.build(
-                    contextRepository.getCurrent(),
-                    "BaseService",
-                    pjp.getTarget().getClass().getName(),
-                    pjp.getSignature().getName(),
-                    CommonError.ServiceError.value(),
-                    retVal.message,
-                    pjp.getArgs(),
-                    retVal.data == null ? retVal.datum : retVal.data,
-                    elapsed_milliseconds,
-                    null);
-        }
-
+        LogEntry entry = logEntryPool.allocate().build(
+                contextRepository.getCurrent(),
+                "Service",
+                pjp.getTarget().getClass().getName(),
+                pjp.getSignature().getName(),
+                retVal.isSuccessful ? CommonError.NoError.value() : CommonError.ServiceError.value(),
+                retVal.isSuccessful ? null : retVal.message,
+                elapsed_milliseconds,
+                null);
         loggerChain.log(entry);
 
         return retVal;

@@ -24,10 +24,6 @@ public class LogEntry implements ILogEntry {
     public int errorCode;
     public String errorMsg;
 
-    //请求、响应
-    public String req;
-    public String res;
-
     //执行时间
     public long elapsed_milliseconds;
 
@@ -44,7 +40,6 @@ public class LogEntry implements ILogEntry {
                       String eventName,
                       String className, String methodName,
                       int errorCode, String errorMsg,
-                      Object req, Object res,
                       long elapsed_milliseconds,
                       Object data) {
         this.context = context;
@@ -56,9 +51,6 @@ public class LogEntry implements ILogEntry {
 
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
-
-        this.req = GsonUtil.toJson(req);
-        this.res = GsonUtil.toJson(res);
 
         this.elapsed_milliseconds = elapsed_milliseconds;
 

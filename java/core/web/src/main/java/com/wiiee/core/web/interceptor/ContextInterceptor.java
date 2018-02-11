@@ -78,8 +78,6 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
                             methodName,
                             CommonError.NoError.value(),
                             null,
-                            contextRepository.getCurrent().getRequest(),
-                            contextRepository.getCurrent().getResponse(),
                             elapsed_milliseconds,
                             null);
 

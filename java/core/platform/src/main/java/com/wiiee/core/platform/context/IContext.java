@@ -12,8 +12,8 @@ public interface IContext {
     String getRemoteIp();
 
     //json request/response数据
-    Object getRequest();
-    Object getResponse();
+    String getRequest();
+    String getResponse();
 
     void setRequest(Object request);
     void setResponse(Object response);
