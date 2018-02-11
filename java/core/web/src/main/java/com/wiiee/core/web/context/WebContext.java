@@ -7,13 +7,18 @@ import com.wiiee.core.platform.context.IContext;
  */
 public class WebContext implements IContext {
     private String userId;
-    private String uuid;
+    private String requestSessionId;
+    private String sessionId;
     private String uri;
     private String remoteIp;
 
-    public WebContext(String userId, String uuid, String uri, String remoteIp) {
+    private Object request;
+    private Object response;
+
+    public WebContext(String userId, String requestSessionId, String sessionId, String uri, String remoteIp) {
         this.userId = userId;
-        this.uuid = uuid;
+        this.requestSessionId = requestSessionId;
+        this.sessionId = sessionId;
         this.uri = uri;
         this.remoteIp = remoteIp;
     }
@@ -24,8 +29,13 @@ public class WebContext implements IContext {
     }
 
     @Override
-    public String getUuid() {
-        return uuid;
+    public String getRequestSessionId() {
+        return requestSessionId;
+    }
+
+    @Override
+    public String getSessionId() {
+        return sessionId;
     }
 
     @Override
@@ -36,5 +46,25 @@ public class WebContext implements IContext {
     @Override
     public String getRemoteIp() {
         return remoteIp;
+    }
+
+    @Override
+    public Object getRequest() {
+        return request;
+    }
+
+    @Override
+    public Object getResponse() {
+        return response;
+    }
+
+    @Override
+    public void setRequest(Object request) {
+        this.request = request;
+    }
+
+    @Override
+    public void setResponse(Object response) {
+        this.response = response;
     }
 }

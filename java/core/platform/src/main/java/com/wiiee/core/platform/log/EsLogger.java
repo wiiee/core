@@ -20,16 +20,20 @@ public class EsLogger implements ILogger {
     @Autowired
     private JestClient jestClient;
 
+    @Autowired
+    private LogEntryPool logEntryPool;
+
     @Override
     public boolean log(ILogEntry entry) {
-        if(entry instanceof LogEntry && jestClient != null){
+        if (entry instanceof LogEntry && jestClient != null) {
             try {
                 String indexName = "core-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
                 Index index = new Index.Builder(entry).index(indexName).type("log").build();
                 jestClient.execute(index);
-            }
-            catch (Exception ex){
+            } catch (Exception ex) {
                 _logger.error(ex.getMessage());
+            } finally {
+                logEntryPool.free((LogEntry) entry);
             }
         }
 

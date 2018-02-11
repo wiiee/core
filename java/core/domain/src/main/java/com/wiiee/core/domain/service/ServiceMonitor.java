@@ -15,6 +15,9 @@ public class ServiceMonitor {
     private LoggerChain loggerChain;
 
     @Autowired
+    private LogEntryPool logEntryPool;
+
+    @Autowired
     private IContextRepository contextRepository;
 
     @Around("execution(public ServiceResult com.wiiee.core.domain.service.BaseService.*(..))")
@@ -23,30 +26,35 @@ public class ServiceMonitor {
         ServiceResult retVal = (ServiceResult) pjp.proceed();
         long endTime = System.nanoTime();
 
-        ILogEntry entry = null;
-        long duration = (endTime - startTime) / 1000000;
+        long elapsed_milliseconds = (endTime - startTime) / 1000000;
+
+        LogEntry entry = logEntryPool.allocate();
 
         if(retVal.isSuccessful){
-            entry = new LogEntry(
+            entry.build(
                     contextRepository.getCurrent(),
-                    Category.Service.name(),
+                    "BaseService",
                     pjp.getTarget().getClass().getName(),
                     pjp.getSignature().getName(),
                     CommonError.NoError.value(),
                     null,
-                    duration,
-                    retVal.data == null ? retVal.datum : retVal.data);
+                    pjp.getArgs(),
+                    retVal.data == null ? retVal.datum : retVal.data,
+                    elapsed_milliseconds,
+                    null);
         }
         else{
-            entry = new LogEntry(
+            entry.build(
                     contextRepository.getCurrent(),
-                    Category.Service.name(),
+                    "BaseService",
                     pjp.getTarget().getClass().getName(),
                     pjp.getSignature().getName(),
                     CommonError.ServiceError.value(),
                     retVal.message,
-                    duration,
-                    retVal.data == null ? retVal.datum : retVal.data);
+                    pjp.getArgs(),
+                    retVal.data == null ? retVal.datum : retVal.data,
+                    elapsed_milliseconds,
+                    null);
         }
 
         loggerChain.log(entry);

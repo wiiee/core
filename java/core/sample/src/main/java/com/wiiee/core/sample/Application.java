@@ -22,7 +22,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
         FeatureConfig.class
 })
 public class Application {
-    private static final Logger log = LoggerFactory.getLogger(Application.class);
+    private static final Logger _logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) throws Exception {
         ApplicationContext applicationContext = new SpringApplicationBuilder(Application.class)
