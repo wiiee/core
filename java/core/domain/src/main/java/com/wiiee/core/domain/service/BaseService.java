@@ -1,5 +1,6 @@
 package com.wiiee.core.domain.service;
 
+import com.wiiee.core.domain.history.HistoryService;
 import com.wiiee.core.platform.constant.HistoryType;
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.context.IContextRepository;

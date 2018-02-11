@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 //        exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class,
 //                DataSourceTransactionManagerAutoConfiguration.class})
 @SpringBootApplication(scanBasePackages = "com")
-//@EnableMongoRepositories(basePackages = "com.wiiee.core.domain.repository")
+//@EnableMongoRepositories(basePackages = "com.wiiee.core.domain.history.repository")
 @EnableConfigurationProperties({
         FeatureConfig.class
 })

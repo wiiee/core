@@ -1,5 +1,6 @@
-package com.wiiee.core.domain.service;
+package com.wiiee.core.domain.history;
 
+import com.wiiee.core.domain.service.BaseService;
 import com.wiiee.core.platform.context.IContextRepository;
 import com.wiiee.core.platform.history.History;
 import com.wiiee.core.platform.history.HistoryLogItem;
