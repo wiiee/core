@@ -25,7 +25,7 @@ public abstract class ObjectPool<T> {
         init(clazz);
     }
 
-    private void init(Class<T> clazz){
+    private void init(Class<T> clazz) {
         this.entries = new HashMap<>(size);
 
         try {
@@ -51,6 +51,10 @@ public abstract class ObjectPool<T> {
     }
 
     public void free(T key) {
-        entries.get(key).setTag(Boolean.FALSE);
+        ObjectWrapper<T, Boolean> entry = entries.get(key);
+
+        if (entry != null) {
+            entry.setTag(Boolean.FALSE);
+        }
     }
 }

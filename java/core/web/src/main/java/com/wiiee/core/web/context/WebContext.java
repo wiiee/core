@@ -15,12 +15,17 @@ public class WebContext implements IContext {
     private Object request;
     private Object response;
 
-    public WebContext(String userId, String requestSessionId, String sessionId, String uri, String remoteIp) {
+    public WebContext() {
+    }
+
+    public WebContext build(String userId, String requestSessionId, String sessionId, String uri, String remoteIp) {
         this.userId = userId;
         this.requestSessionId = requestSessionId;
         this.sessionId = sessionId;
         this.uri = uri;
         this.remoteIp = remoteIp;
+
+        return this;
     }
 
     @Override

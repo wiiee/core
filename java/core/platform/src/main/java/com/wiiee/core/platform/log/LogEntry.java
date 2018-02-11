@@ -10,11 +10,7 @@ import java.sql.Timestamp;
  */
 
 public class LogEntry implements ILogEntry {
-    public String context_userId;
-    public String context_requestSessionId;
-    public String context_sessionId;
-    public String context_uri;
-    public String context_remoteIp;
+    public IContext context;
 
     //事件类型
     public String eventName;
@@ -42,37 +38,6 @@ public class LogEntry implements ILogEntry {
     
     public LogEntry(){}
 
-    public LogEntry(IContext context,
-                    String eventName,
-                    String className, String methodName,
-                    int errorCode, String errorMsg,
-                    Object req, Object res,
-                    long elapsed_milliseconds,
-                    Object data) {
-        this.context_userId = context.getUserId();
-        this.context_requestSessionId = context.getRequestSessionId();
-        this.context_sessionId = context.getSessionId();
-        this.context_uri = context.getUri();
-        this.context_remoteIp = context.getRemoteIp();
-
-        this.eventName = eventName;
-
-        this.className = className;
-        this.methodName = methodName;
-
-        this.errorCode = errorCode;
-        this.errorMsg = errorMsg;
-
-        this.req = GsonUtil.toJson(req);
-        this.res = GsonUtil.toJson(res);
-
-        this.elapsed_milliseconds = elapsed_milliseconds;
-
-        this.data = GsonUtil.toJson(data);
-
-        this.timestamp = new Timestamp(System.currentTimeMillis());
-    }
-
     public LogEntry build(IContext context,
                       String eventName,
                       String className, String methodName,
@@ -80,11 +45,7 @@ public class LogEntry implements ILogEntry {
                       Object req, Object res,
                       long elapsed_milliseconds,
                       Object data) {
-        this.context_userId = context.getUserId();
-        this.context_requestSessionId = context.getRequestSessionId();
-        this.context_sessionId = context.getSessionId();
-        this.context_uri = context.getUri();
-        this.context_remoteIp = context.getRemoteIp();
+        this.context = context;
 
         this.eventName = eventName;
 

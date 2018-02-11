@@ -6,6 +6,7 @@ import com.wiiee.core.platform.log.LogEntry;
 import com.wiiee.core.platform.log.LogEntryPool;
 import com.wiiee.core.platform.log.LoggerChain;
 import com.wiiee.core.web.context.WebContext;
+import com.wiiee.core.web.context.WebContextPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -28,6 +29,9 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
     private LogEntryPool logEntryPool;
 
     @Autowired
+    private WebContextPool webContextPool;
+
+    @Autowired
     public ContextInterceptor(IContextRepository contextRepository, LoggerChain loggerChain) {
         this.contextRepository = contextRepository;
         this.loggerChain = loggerChain;
@@ -37,8 +41,9 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         request.setAttribute("startTime", System.nanoTime());
         HttpSession session = request.getSession();
+
         contextRepository.setContext(
-                new WebContext(
+                webContextPool.allocate().build(
                         session == null ? null : (String) session.getAttribute("userId"),
                         session == null ? null : session.getId(),
                         request.getRequestedSessionId(),
@@ -78,6 +83,6 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-
+        webContextPool.free(contextRepository.getContext(WebContext.class));
     }
 }
