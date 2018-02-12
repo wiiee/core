@@ -14,14 +14,16 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ServiceMonitor {
-    @Autowired
     private LoggerChain loggerChain;
-
-    @Autowired
     private LogEntryPool logEntryPool;
+    private IContextRepository contextRepository;
 
     @Autowired
-    private IContextRepository contextRepository;
+    public ServiceMonitor(LoggerChain loggerChain, LogEntryPool logEntryPool, IContextRepository contextRepository) {
+        this.loggerChain = loggerChain;
+        this.logEntryPool = logEntryPool;
+        this.contextRepository = contextRepository;
+    }
 
     @Around("execution(public com.wiiee.core.domain.service.ServiceResult com..service.*Service.*(..))")
     public ServiceResult logService(ProceedingJoinPoint pjp) throws Throwable {
@@ -39,7 +41,7 @@ public class ServiceMonitor {
                 retVal.isSuccessful ? CommonError.NoError.value() : CommonError.ServiceError.value(),
                 retVal.isSuccessful ? null : retVal.message,
                 elapsed_milliseconds,
-                null);
+                retVal.data == null ? retVal.datum : null);
         loggerChain.log(entry);
 
         return retVal;

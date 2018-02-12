@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by wiiee on 2/5/2018.
@@ -15,7 +13,17 @@ import java.util.List;
 public abstract class EnumUtil {
     private static final Logger _logger = LoggerFactory.getLogger(EnumUtil.class);
 
+    private static Map<String, List<Pair<String, Object>>> enums;
+
+    static {
+        enums = new HashMap<>();
+    }
+
     public static List<Pair<String, Object>> getOptions(String name){
+        if(enums.containsKey(name)){
+            return enums.get(name);
+        }
+
         List<Pair<String, Object>> pairs = new ArrayList<>();
 
         try {
@@ -32,6 +40,8 @@ public abstract class EnumUtil {
         } catch (Exception ex) {
             _logger.error(ex.getMessage());
         }
+
+        enums.put(name, pairs);
 
         return pairs;
     }

@@ -5,6 +5,7 @@ import com.wiiee.core.platform.log.CommonError;
 import com.wiiee.core.platform.log.LogEntry;
 import com.wiiee.core.platform.log.LogEntryPool;
 import com.wiiee.core.platform.log.LoggerChain;
+import com.wiiee.core.platform.util.GsonUtil;
 import com.wiiee.core.web.context.WebContext;
 import com.wiiee.core.web.context.WebContextPool;
 import org.slf4j.Logger;
@@ -28,17 +29,15 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
 
     private IContextRepository contextRepository;
     private LoggerChain loggerChain;
-
-    @Autowired
     private LogEntryPool logEntryPool;
-
-    @Autowired
     private WebContextPool webContextPool;
 
     @Autowired
-    public ContextInterceptor(IContextRepository contextRepository, LoggerChain loggerChain) {
+    public ContextInterceptor(IContextRepository contextRepository, LoggerChain loggerChain, LogEntryPool logEntryPool, WebContextPool webContextPool) {
         this.contextRepository = contextRepository;
         this.loggerChain = loggerChain;
+        this.logEntryPool = logEntryPool;
+        this.webContextPool = webContextPool;
     }
 
     @Override
@@ -60,34 +59,35 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         long elapsed_milliseconds = (System.nanoTime() - (Long) request.getAttribute("startTime")) / 1000000;
 
-        String className = "";
-        String methodName = "";
+        WebContext context = contextRepository.getContext(WebContext.class);
 
         if (handler instanceof HandlerMethod) {
             HandlerMethod method = (HandlerMethod) handler;
-            className = method.getBeanType().getName();
-            methodName = method.getMethod().getName();
-        }
 
-        try{
-            LogEntry entry = logEntryPool.allocate()
-                    .build(
-                            contextRepository.getCurrent(),
-                            "Web",
-                            className,
-                            methodName,
-                            CommonError.NoError.value(),
-                            null,
-                            elapsed_milliseconds,
-                            null);
+            String className = method.getBeanType().getName();
+            String methodName = method.getMethod().getName();
 
-            loggerChain.log(entry);
+            try {
+                LogEntry entry = logEntryPool.allocate()
+                        .build(
+                                context,
+                                "Web",
+                                className,
+                                methodName,
+                                CommonError.NoError.value(),
+                                null,
+                                elapsed_milliseconds,
+                                null);
+
+                loggerChain.log(entry);
+            } catch (Exception ex) {
+                _logger.error(ex.getMessage());
+            } finally {
+                webContextPool.free(context);
+            }
         }
-        catch (Exception ex){
-            _logger.error(ex.getMessage());
-        }
-        finally {
-            webContextPool.free(contextRepository.getContext(WebContext.class));
+        else{
+            _logger.info("contextInterceptor: " + GsonUtil.toJson(context));
         }
     }
 

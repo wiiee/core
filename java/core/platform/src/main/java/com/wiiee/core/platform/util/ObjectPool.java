@@ -9,7 +9,6 @@ import java.util.Map;
 public abstract class ObjectPool<T> {
     private static final Logger _logger = LoggerFactory.getLogger(ObjectPool.class);
 
-
     private static final int DEFAULT_SIZE = 128;
     private Map<T, ObjectWrapper<T, Boolean>> entries;
 
