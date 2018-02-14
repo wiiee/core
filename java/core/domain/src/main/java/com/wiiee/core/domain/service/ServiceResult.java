@@ -16,7 +16,13 @@ public class ServiceResult<T extends IData> {
     public T data;
     public List<T> datum;
 
-    public static ServiceResult SUCCESS = new ServiceResult();
+    public static final ServiceResult SUCCESS = new ServiceResult();
+
+    public static final ServiceResult INVALID_USERNAME = new ServiceResult(100, "Id is invalid, please check it.");
+    public static final ServiceResult INVALID_PWD = new ServiceResult(101, "Password is invalid, please check it.");
+    public static final ServiceResult INVALID_USERNAME_OR_PWD = new ServiceResult(102, "Id or password is invalid, please check it.");
+    public static final ServiceResult USER_ALREADY_EXIST = new ServiceResult(103, "User is already exist.");
+
 
     //返回ok
     private ServiceResult(){

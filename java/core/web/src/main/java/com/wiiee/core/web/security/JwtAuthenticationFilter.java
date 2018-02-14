@@ -18,7 +18,6 @@ import static com.wiiee.core.web.security.Constant.SECRET;
 import static com.wiiee.core.web.security.Constant.TOKEN_PREFIX;
 
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
-
     public JwtAuthenticationFilter(AuthenticationManager authManager) {
         super(authManager);
     }
