@@ -5,41 +5,44 @@ import com.wiiee.core.sample.domain.entity.User;
 import com.wiiee.core.sample.domain.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ui.Model;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/api/user")
-@SessionAttributes("userId")
 public class UserController {
     private static final Logger _logger = LoggerFactory.getLogger(UserController.class);
 
-    @Resource
+    @Autowired
     private UserService userService;
 
+//    @Autowired
+//    private AuthenticationManager authenticationManager;
+
     @PostMapping("/logIn")
-    public ServiceResult<User> logIn(@RequestBody User user, Model model) {
-        if (user == null) {
-            return UserService.INVALID_USERNAME_OR_PWD;
-        }
-
-        ServiceResult<User> result = userService.logIn(user.getId(), user.password);
-
-        if(result.isSuccessful){
-            model.addAttribute("userId", user.getId());
-        }
-
-        return result;
+    public ServiceResult<User> logIn() {
+        return ServiceResult.SUCCESS;
     }
 
     @PostMapping("/signUp")
-    public ServiceResult<User> signUp(@RequestBody User user, Model model) {
+    public ServiceResult<User> signUp(@RequestBody User user) {
         ServiceResult<User> result = userService.signUp(user);
-        if(result.isSuccessful){
-            model.addAttribute("userId", user.getId());
-        }
+
+//        if (result.isSuccessful) {
+//            String username = user.getId();
+//            String password = user.password;
+//
+//            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+//
+//            // generate session if one doesn't exist
+//            request.getSession();
+//
+//            token.setDetails(new WebAuthenticationDetails(request));
+//            Authentication authenticatedUser = authenticationManager.authenticate(token);
+//
+//            SecurityContextHolder.getContext().setAuthentication(authenticatedUser);
+//        }
+
         return result;
     }
 

@@ -9,16 +9,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 /**
  * Created by wiiee on 4/5/2017.
  */
-@Configuration
+//@Configuration
 public class CorsConfig {
-    @Bean
-    public WebMvcConfigurer corsConfigurer(){
-        return new WebMvcConfigurerAdapter() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**");
-                super.addCorsMappings(registry);
-            }
-        };
-    }
+//    @Bean
+//    public WebMvcConfigurer corsConfigurer(){
+//        return new WebMvcConfigurerAdapter() {
+//            @Override
+//            public void addCorsMappings(CorsRegistry registry) {
+//                registry.addMapping("/api/**");
+//                registry.addMapping("/login");
+//                super.addCorsMappings(registry);
+//            }
+//        };
+//    }
 }

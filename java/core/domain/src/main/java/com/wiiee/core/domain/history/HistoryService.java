@@ -25,13 +25,12 @@ public class HistoryService extends BaseService<History, String> implements IHis
     @Autowired
     private IContextRepository contextRepository;
 
-    @Autowired
+    @Autowired(required = false)
     private CacheManager cacheManager;
 
     @Autowired
     private LoggerChain loggerChain;
 
-    @Autowired
     public HistoryService(MongoRepository<History, String> repository) {
         super(repository, History.class);
     }

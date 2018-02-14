@@ -9,7 +9,10 @@ import java.util.List;
  */
 public class ServiceResult<T extends IData> {
     public boolean isSuccessful;
-    public String message;
+
+    public int errorCode;
+    public String errorMsg;
+
     public T data;
     public List<T> datum;
 
@@ -32,8 +35,9 @@ public class ServiceResult<T extends IData> {
         this.datum = datum;
     }
 
-    //返回错误的message
-    public ServiceResult(String message) {
-        this.message = message;
+    //返回错误的errorCode和errorMessage
+    public ServiceResult(int errorCode, String errorMsg) {
+        this.errorCode = errorCode;
+        this.errorMsg = errorMsg;
     }
 }

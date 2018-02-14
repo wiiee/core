@@ -8,6 +8,7 @@ import com.wiiee.core.platform.data.IData;
 import com.wiiee.core.platform.history.HistoryInfo;
 import com.wiiee.core.platform.history.HistoryLogItem;
 import com.wiiee.core.platform.history.IHistoryService;
+import com.wiiee.core.platform.log.CommonError;
 import com.wiiee.core.platform.log.LoggerChain;
 import com.wiiee.core.platform.util.GsonUtil;
 import org.springframework.cache.Cache;
@@ -38,19 +39,19 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         this.entityClazz = entityClazz;
     }
 
-    public void _setContextRepository(IContextRepository contextRepository) {
+    protected void _setContextRepository(IContextRepository contextRepository) {
         _contextRepository = contextRepository;
     }
 
-    public void _setCacheManager(CacheManager cacheManager) {
+    protected void _setCacheManager(CacheManager cacheManager) {
         _cacheManager = cacheManager;
     }
 
-    public void _setHistoryService(IHistoryService historyService) {
+    protected void _setHistoryService(IHistoryService historyService) {
         _historyService = historyService;
     }
 
-    public void _setLoggerChain(LoggerChain loggerChain) {
+    protected void _setLoggerChain(LoggerChain loggerChain) {
         _loggerChain = loggerChain;
     }
 
@@ -89,7 +90,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         if (cache != null) {
             Object entry = cache.get(id);
 
-            if (entry != null && this.getClass().isInstance(entry)) {
+            if (entry != null && this.entityClazz.isInstance(entry)) {
                 return (T) entry;
             }
         }
@@ -99,50 +100,50 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
     public ServiceResult<T> get() {
         try {
-            return new ServiceResult(repository.findAll());
+            return new ServiceResult<>(repository.findAll());
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
     public ServiceResult<T> get(Id id) {
         try {
             T entry = getCacheEntry(id);
-            return new ServiceResult(entry != null ? entry : repository.findOne(id));
+            return new ServiceResult<>(entry != null ? entry : repository.findOne(id));
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
     public ServiceResult<T> get(Sort sort) {
         try {
-            return new ServiceResult(repository.findAll(sort));
+            return new ServiceResult<>(repository.findAll(sort));
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
     public ServiceResult<T> getOne(Example<T> example) {
         try {
-            return new ServiceResult(repository.findOne(example));
+            return new ServiceResult<>(repository.findOne(example));
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
     public ServiceResult<T> getAll(Example<T> example) {
         try {
-            return new ServiceResult(repository.findAll(example));
+            return new ServiceResult<>(repository.findAll(example));
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
     public ServiceResult<T> get(Example<T> example, Sort sort) {
         try {
-            return new ServiceResult(repository.findAll(example, sort));
+            return new ServiceResult<>(repository.findAll(example, sort));
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
 
     }
@@ -157,9 +158,9 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             putCacheEntry(result.getId(), result);
 
-            return new ServiceResult(result);
+            return new ServiceResult<>(result);
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
@@ -177,9 +178,9 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
                 putCacheEntry(entity.getId(), entity);
             }
 
-            return new ServiceResult(result);
+            return new ServiceResult<>(result);
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
@@ -195,7 +196,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
@@ -215,7 +216,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
 
     }
@@ -232,7 +233,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 
@@ -250,7 +251,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult(ex.getMessage());
+            return new ServiceResult<>(CommonError.ServiceError.value(), ex.getMessage());
         }
     }
 

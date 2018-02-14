@@ -11,6 +11,9 @@ import com.wiiee.core.web.context.WebContextPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -45,9 +48,17 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
         request.setAttribute("startTime", System.nanoTime());
         HttpSession session = request.getSession();
 
+        String userId = null;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication != null && authentication.getPrincipal() instanceof User){
+            userId = ((User)authentication.getPrincipal()).getUsername();
+        }
+
         contextRepository.setContext(
                 webContextPool.allocate().build(
-                        session == null ? null : (String) session.getAttribute("userId"),
+                        userId,
                         session == null ? null : session.getId(),
                         request.getRequestedSessionId(),
                         request.getRequestURI(),

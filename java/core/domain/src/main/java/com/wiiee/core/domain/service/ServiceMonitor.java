@@ -38,8 +38,8 @@ public class ServiceMonitor {
                 "Service",
                 pjp.getTarget().getClass().getName(),
                 pjp.getSignature().getName(),
-                retVal.isSuccessful ? CommonError.NoError.value() : CommonError.ServiceError.value(),
-                retVal.isSuccessful ? null : retVal.message,
+                retVal.errorCode,
+                retVal.errorMsg,
                 elapsed_milliseconds,
                 retVal.data == null ? retVal.datum : null);
         loggerChain.log(entry);
