@@ -1,10 +1,14 @@
 package com.wiiee.core.platform.util;
 
+import com.wiiee.core.platform.util.date.DateRange;
+import io.searchbox.core.search.aggregation.DateRangeAggregation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.core.Local;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -59,5 +63,10 @@ public abstract class DateUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date(0));
         return calendar;
+    }
+
+    public static boolean isIntersect(LocalDateTime startDate1, LocalDateTime endDate1,
+                                      LocalDateTime startDate2, LocalDateTime endDate2){
+        return !(endDate1.isBefore(startDate2) || endDate2.isBefore(startDate1));
     }
 }

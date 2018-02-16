@@ -4,23 +4,25 @@ import com.wiiee.core.domain.service.BaseService;
 import com.wiiee.core.domain.service.ServiceResult;
 import com.wiiee.core.sample.domain.entity.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import static java.util.Collections.emptyList;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserService extends BaseService<User, String> implements UserDetailsService {
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(MongoRepository<User, String> repository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(MongoRepository<User, String> repository, PasswordEncoder passwordEncoder) {
         super(repository, User.class);
 
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public ServiceResult<User> signUp(User user) {
@@ -33,7 +35,7 @@ public class UserService extends BaseService<User, String> implements UserDetail
         User dbUser = result.data;
 
         if (dbUser == null) {
-            user.password = bCryptPasswordEncoder.encode(user.password);
+            user.password = passwordEncoder.encode(user.password);
             create(user);
             return ServiceResult.SUCCESS;
         } else {
@@ -49,6 +51,8 @@ public class UserService extends BaseService<User, String> implements UserDetail
             throw new UsernameNotFoundException(username);
         }
 
-        return new org.springframework.security.core.userdetails.User(user.getId(), user.password, emptyList());
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        return new org.springframework.security.core.userdetails.User(user.getId(), user.password, authorities);
     }
 }

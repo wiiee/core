@@ -1,8 +1,13 @@
 package com.wiiee.core.web.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wiiee.core.domain.security.AuthUser;
+import com.wiiee.core.domain.security.Constant;
+import com.wiiee.core.platform.util.GsonUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,10 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.wiiee.core.web.security.Constant.*;
+import static com.wiiee.core.domain.security.Constant.*;
 
 //登录认证
 public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private static final Logger _logger = LoggerFactory.getLogger(JwtUsernamePasswordAuthenticationFilter.class);
+
     private AuthenticationManager authenticationManager;
 
     public JwtUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -51,13 +58,20 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
-        String token = Jwts.builder()
-                .setSubject(((User)auth.getPrincipal()).getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                .compact();
+        if(auth.getPrincipal() instanceof User){
+            User user = (User)auth.getPrincipal();
+            String token = Jwts.builder()
+                    .setSubject(user.getUsername())
+                    .claim(Constant.AUTHORITIES_KEY, user.getAuthorities())
+                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                    .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                    .compact();
 
-        res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
-        res.addHeader("Access-Control-Expose-Headers", HEADER_STRING);
+            res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+            res.addHeader("Access-Control-Expose-Headers", HEADER_STRING);
+        }
+        else{
+            _logger.warn(GsonUtil.toJson(auth));
+        }
     }
 }

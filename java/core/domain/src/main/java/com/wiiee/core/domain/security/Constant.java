@@ -1,4 +1,4 @@
-package com.wiiee.core.web.security;
+package com.wiiee.core.domain.security;
 
 public abstract class Constant {
     public static final String SECRET = "SecretKeyToGenJWTs";
@@ -6,4 +6,5 @@ public abstract class Constant {
     public static final String TOKEN_PREFIX = "Security ";
     public static final String HEADER_STRING = "Authorization";
     public static final String SIGN_UP_URL = "/api/user/signUp";
+    public static final String AUTHORITIES_KEY = "authorities";
 }

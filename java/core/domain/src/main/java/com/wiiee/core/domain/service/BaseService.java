@@ -98,6 +98,14 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         return null;
     }
 
+    public <R extends MongoRepository<T, Id>> R getRepository(Class<R> clazz){
+        if(clazz.isInstance(repository)){
+            return (R)repository;
+        }
+
+        return null;
+    }
+
     public ServiceResult<T> get() {
         try {
             return new ServiceResult<>(repository.findAll());

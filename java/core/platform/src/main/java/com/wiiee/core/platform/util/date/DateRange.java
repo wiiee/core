@@ -1,4 +1,4 @@
-package com.wiiee.core.domain.valuetype;
+package com.wiiee.core.platform.util.date;
 
 import java.time.LocalDateTime;
 

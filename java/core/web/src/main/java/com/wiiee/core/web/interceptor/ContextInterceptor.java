@@ -101,8 +101,4 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
             _logger.info("contextInterceptor: " + GsonUtil.toJson(context));
         }
     }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-    }
 }

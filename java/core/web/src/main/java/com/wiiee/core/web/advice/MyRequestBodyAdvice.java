@@ -2,10 +2,14 @@ package com.wiiee.core.web.advice;
 
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.context.IContextRepository;
+import com.wiiee.core.platform.data.BaseData;
+import com.wiiee.core.domain.security.IAccessCtrl;
+import com.wiiee.core.domain.security.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
@@ -16,6 +20,9 @@ import java.lang.reflect.Type;
 public class MyRequestBodyAdvice implements RequestBodyAdvice {
     @Autowired
     private IContextRepository contextRepository;
+
+    @Autowired(required = false)
+    private IAccessCtrl accessCtrl;
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -36,8 +43,23 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         IContext context = contextRepository.getCurrent();
 
-        if(context != null){
+        if (context != null) {
             context.setRequest(body);
+        }
+
+        //匿名的跳过
+        if (body instanceof BaseData && !SecurityUtil.isAnonymous()) {
+            Authentication authentication = SecurityUtil.getAuthentication();
+
+            if (accessCtrl != null && authentication != null) {
+                String opUserId = ((BaseData) body).getId().toString();
+                String authUserId = SecurityUtil.getUserId();
+
+                if (!accessCtrl.isAllowed(authUserId, opUserId)) {
+                    throw new org.springframework.security.access.AccessDeniedException(
+                            String.format("opUserId: %s, authUserId: %s", opUserId, authUserId));
+                }
+            }
         }
 
         return body;

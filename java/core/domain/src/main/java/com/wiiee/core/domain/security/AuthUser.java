@@ -1,4 +1,4 @@
-package com.wiiee.core.web.security;
+package com.wiiee.core.domain.security;
 
 public class AuthUser {
     public String username;
