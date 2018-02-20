@@ -23,7 +23,7 @@ public class TestController {
     }
 
     @PostMapping
-    public String hello(@RequestBody String name){
-        return "hello, world" + name;
+    public String hello(@RequestBody String name) throws Exception {
+        return "hello, world " + name;
     }
 }

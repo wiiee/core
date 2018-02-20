@@ -3,7 +3,6 @@ package com.wiiee.core.web.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,15 +23,19 @@ import static com.wiiee.core.domain.security.Constant.SIGN_UP_URL;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtUsernamePasswordAuthenticationFilter jwtUsernamePasswordAuthenticationFilter;
 
     public WebSecurityConfig(
-            AuthenticationManager authenticationManager,
             UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
-        this.authenticationManager = authenticationManager;
+            PasswordEncoder passwordEncoder,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtUsernamePasswordAuthenticationFilter jwtUsernamePasswordAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.jwtUsernamePasswordAuthenticationFilter = jwtUsernamePasswordAuthenticationFilter;
     }
 
     @Override
@@ -46,8 +49,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();
 
         http
-                .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager))
-                .addFilter(new JwtAuthenticationFilter(authenticationManager))
+                .addFilter(jwtAuthenticationFilter)
+                .addFilter(jwtUsernamePasswordAuthenticationFilter)
                 // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -61,7 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", new CorsConfiguration().applyPermitDefaultValues());
-        source.registerCorsConfiguration("/login", new CorsConfiguration().applyPermitDefaultValues());
+        //source.registerCorsConfiguration("/login", new CorsConfiguration().applyPermitDefaultValues());
         return source;
     }
 }

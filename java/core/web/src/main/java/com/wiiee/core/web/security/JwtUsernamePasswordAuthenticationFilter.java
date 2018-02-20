@@ -3,6 +3,7 @@ package com.wiiee.core.web.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wiiee.core.domain.security.AuthUser;
 import com.wiiee.core.domain.security.Constant;
+import com.wiiee.core.platform.property.AppProperties;
 import com.wiiee.core.platform.util.GsonUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,6 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -26,13 +30,16 @@ import java.util.Date;
 import static com.wiiee.core.domain.security.Constant.*;
 
 //登录认证
+@Component
 public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private static final Logger _logger = LoggerFactory.getLogger(JwtUsernamePasswordAuthenticationFilter.class);
 
-    private AuthenticationManager authenticationManager;
+    public JwtUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager, AppProperties appProperties) {
+        setAuthenticationManager(authenticationManager);
 
-    public JwtUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+        if (!StringUtils.isEmpty(appProperties.getAuthenticationUrl())) {
+            this.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(appProperties.getAuthenticationUrl(), "POST"));
+        }
     }
 
     @Override
@@ -42,7 +49,7 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
             AuthUser credentials = new ObjectMapper()
                     .readValue(req.getInputStream(), AuthUser.class);
 
-            return authenticationManager.authenticate(
+            return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             credentials.username,
                             credentials.password,
@@ -58,20 +65,6 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
-        if(auth.getPrincipal() instanceof User){
-            User user = (User)auth.getPrincipal();
-            String token = Jwts.builder()
-                    .setSubject(user.getUsername())
-                    .claim(Constant.AUTHORITIES_KEY, user.getAuthorities())
-                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                    .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                    .compact();
-
-            res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
-            res.addHeader("Access-Control-Expose-Headers", HEADER_STRING);
-        }
-        else{
-            _logger.warn(GsonUtil.toJson(auth));
-        }
+        SecurityUtil.setHeaderToken(res, auth);
     }
 }

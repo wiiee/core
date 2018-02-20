@@ -1,6 +1,7 @@
 package com.wiiee.core.web.api;
 
 import com.wiiee.core.domain.service.ServiceResult;
+import com.wiiee.core.platform.property.AppProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorController;
@@ -19,6 +20,9 @@ public class MyErrorController implements ErrorController {
     @Autowired
     private ErrorAttributes errorAttributes;
 
+    @Autowired
+    private AppProperties appProperties;
+
     @Override
     public String getErrorPath() {
         return PATH;
@@ -26,7 +30,7 @@ public class MyErrorController implements ErrorController {
 
     @RequestMapping(value = PATH)
     public ServiceResult error(HttpServletRequest request, HttpServletResponse response) {
-        if(response.getStatus() == 401 && "/login".equals(request.getAttribute("javax.servlet.error.request_uri"))){
+        if(response.getStatus() == 401 && appProperties.getAuthenticationUrl().equals(request.getAttribute("javax.servlet.error.request_uri"))){
             String errorMsg = (String)request.getAttribute("javax.servlet.error.message");
 
             if(errorMsg != null && errorMsg.equals("Authentication Failed: Bad credentials")){

@@ -8,23 +8,33 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.wiiee.core.domain.security.Constant.*;
 
+@Component
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     private static final Logger _logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
+    private Map<String, SimpleGrantedAuthority> authorities;
+
     public JwtAuthenticationFilter(AuthenticationManager authManager) {
         super(authManager);
+
+        this.authorities = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -56,10 +66,20 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                         .getBody();
 
                 String user = body.getSubject();
-                List<GrantedAuthority> authorities = (List<GrantedAuthority>) body.get(Constant.AUTHORITIES_KEY);
+                String authorityClaim = (String) body.get(Constant.AUTHORITIES_KEY);
+
+                List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+
+                for(String claim : authorityClaim.split(",")){
+                    if(!authorities.containsKey(claim)){
+                        authorities.put(claim, new SimpleGrantedAuthority(claim));
+                    }
+
+                    grantedAuthorities.add(authorities.get(claim));
+                }
 
                 if (user != null) {
-                    return new UsernamePasswordAuthenticationToken(user, null, authorities);
+                    return new UsernamePasswordAuthenticationToken(user, null, grantedAuthorities);
                 }
             } catch (Exception ex) {
                 _logger.error(ex.getMessage());

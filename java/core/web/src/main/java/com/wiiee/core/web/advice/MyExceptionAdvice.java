@@ -14,6 +14,6 @@ public class MyExceptionAdvice {
     //ToDo: log exception to elasticsearch
     @ExceptionHandler(value = Exception.class)
     public void handleException(HttpServletRequest request, Exception ex){
-        _logger.error(String.format("uri: %s; msg: %s"), request.getRequestURI(), ex.getMessage());
+        _logger.error(String.format("uri: %s; msg: %s", request.getRequestURI(), ex.getMessage()));
     }
 }
