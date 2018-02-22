@@ -2,7 +2,6 @@ package com.wiiee.core.web.api;
 
 import com.wiiee.core.domain.cache.CacheHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -42,7 +41,7 @@ public class CacheApiController {
     }
 
     @RequestMapping(path = "/update/{name}", method = RequestMethod.POST)
-    public void updateCache(@PathVariable String name, @RequestBody Pair<String, String> data) {
-        cacheHelper.updateCacheWithString(name, data.getFirst(), data.getSecond());
+    public void updateCache(@PathVariable String name, @RequestBody javafx.util.Pair<String, String> data) {
+        cacheHelper.updateCacheWithString(name, data.getKey(), data.getValue());
     }
 }
