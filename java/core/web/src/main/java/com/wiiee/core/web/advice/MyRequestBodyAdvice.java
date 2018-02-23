@@ -1,10 +1,11 @@
 package com.wiiee.core.web.advice;
 
+import com.wiiee.core.domain.security.SecurityUtil;
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.context.IContextRepository;
 import com.wiiee.core.platform.data.BaseData;
 import com.wiiee.core.domain.security.IAccessCtrl;
-import com.wiiee.core.web.security.SecurityUtil;
+import com.wiiee.core.web.security.WebSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;

@@ -1,9 +1,5 @@
-package com.wiiee.core.web.security;
+package com.wiiee.core.domain.security;
 
-import com.wiiee.core.domain.security.Constant;
-import com.wiiee.core.platform.util.GsonUtil;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,12 +9,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.util.CollectionUtils;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.wiiee.core.domain.security.Constant.*;
 
 public abstract class SecurityUtil {
     public static User getUser() {
@@ -49,6 +42,19 @@ public abstract class SecurityUtil {
         return null;
     }
 
+    public static List<String> getAuthorities() {
+        Authentication authentication = getAuthentication();
+
+        if (authentication != null) {
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            if (!CollectionUtils.isEmpty(authorities)) {
+                return authorities.stream().map(o -> o.getAuthority()).collect(Collectors.toList());
+            }
+        }
+
+        return null;
+    }
+
     public static Authentication getAuthentication() {
         SecurityContext context = SecurityContextHolder.getContext();
         return context == null ? null : context.getAuthentication();
@@ -70,23 +76,5 @@ public abstract class SecurityUtil {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return authentication;
-    }
-
-    //返回token给客户端
-    public static void setHeaderToken(HttpServletResponse response, Authentication auth) {
-        String authorities = String.join(",",
-                auth.getAuthorities().stream()
-                        .map(o -> o.getAuthority())
-                        .collect(Collectors.toList()));
-
-        String token = Jwts.builder()
-                .setSubject(auth.getName())
-                .claim(Constant.AUTHORITIES_KEY, authorities)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                .compact();
-
-        response.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
-        response.addHeader("Access-Control-Expose-Headers", HEADER_STRING);
     }
 }

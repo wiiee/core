@@ -4,8 +4,10 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wiiee on 2/5/2018.
@@ -27,15 +29,18 @@ public abstract class EnumUtil {
         List<Pair<String, Object>> pairs = new ArrayList<>();
 
         try {
-            Class<?> e = Class.forName(name);
+            Class<?> clazz = Class.forName(name);
 
-            Object[] items = e.getEnumConstants();
+
+            Object[] items = clazz.getEnumConstants();
 
             //Method[] methods = e.getDeclaredMethods();
             //Method method = Arrays.stream(methods).filter(o -> o.getName().equals("value")).findAny().orElse(null);
 
-            for (Object item : items) {
-                pairs.add(new Pair<>(item.toString(), item.toString()));
+            if (items != null) {
+                for (Object item : items) {
+                    pairs.add(new Pair<>(item.toString(), item.toString()));
+                }
             }
         } catch (Exception ex) {
             _logger.error(ex.getMessage());
