@@ -11,6 +11,7 @@ import com.wiiee.core.web.context.WebContextPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -52,8 +53,8 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(authentication != null && authentication.getPrincipal() instanceof User){
-            userId = ((User)authentication.getPrincipal()).getUsername();
+        if(authentication != null){
+            userId = authentication.getName();
         }
 
         contextRepository.setContext(
@@ -62,7 +63,8 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
                         session == null ? null : session.getId(),
                         request.getRequestedSessionId(),
                         request.getRequestURI(),
-                        request.getRemoteAddr()));
+                        request.getRemoteAddr(),
+                        HttpMethod.resolve(request.getMethod())));
         return true;
     }
 

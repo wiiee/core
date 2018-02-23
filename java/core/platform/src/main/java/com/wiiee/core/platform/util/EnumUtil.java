@@ -19,8 +19,8 @@ public abstract class EnumUtil {
         enums = new HashMap<>();
     }
 
-    public static List<Pair<String, Object>> getOptions(String name){
-        if(enums.containsKey(name)){
+    public static List<Pair<String, Object>> getOptions(String name) {
+        if (enums.containsKey(name)) {
             return enums.get(name);
         }
 
@@ -31,11 +31,11 @@ public abstract class EnumUtil {
 
             Object[] items = e.getEnumConstants();
 
-            Method[] methods = e.getDeclaredMethods();
-            Method method = Arrays.stream(methods).filter(o -> o.getName().equals("value")).findAny().orElse(null);
+            //Method[] methods = e.getDeclaredMethods();
+            //Method method = Arrays.stream(methods).filter(o -> o.getName().equals("value")).findAny().orElse(null);
 
-            for(Object item : items){
-                pairs.add(new Pair<>(item.toString(), method == null ? item.toString() : method.invoke(item)));
+            for (Object item : items) {
+                pairs.add(new Pair<>(item.toString(), item.toString()));
             }
         } catch (Exception ex) {
             _logger.error(ex.getMessage());

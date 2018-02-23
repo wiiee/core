@@ -8,6 +8,7 @@ import com.wiiee.core.web.security.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -47,8 +48,16 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
             context.setRequest(body);
         }
 
-        //匿名的跳过
-        if (body instanceof BaseData && !SecurityUtil.isAnonymous()) {
+        if (body instanceof BaseData
+                //匿名的跳过
+                && !SecurityUtil.isAnonymous()) {
+            //添加新用户跳过
+            if (context != null
+                    && context.getUri().equals("/api/user")
+                    && context.getHttpMethod() == HttpMethod.PUT) {
+                return body;
+            }
+
             Authentication authentication = SecurityUtil.getAuthentication();
 
             if (accessCtrl != null && authentication != null) {
