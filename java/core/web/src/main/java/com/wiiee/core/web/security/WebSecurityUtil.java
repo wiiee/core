@@ -1,6 +1,6 @@
 package com.wiiee.core.web.security;
 
-import com.wiiee.core.domain.security.Constant;
+import com.wiiee.core.domain.security.SecurityConstant;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.Authentication;
@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-import static com.wiiee.core.domain.security.Constant.*;
+import static com.wiiee.core.domain.security.SecurityConstant.*;
 
 public abstract class WebSecurityUtil {
     //返回token给客户端
@@ -21,7 +21,7 @@ public abstract class WebSecurityUtil {
 
         String token = Jwts.builder()
                 .setSubject(auth.getName())
-                .claim(Constant.AUTHORITIES_KEY, authorities)
+                .claim(SecurityConstant.AUTHORITIES_KEY, authorities)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
                 .compact();

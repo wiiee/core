@@ -1,6 +1,6 @@
 package com.wiiee.core.web.security;
 
-import com.wiiee.core.domain.security.Constant;
+import com.wiiee.core.domain.security.SecurityConstant;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.DefaultClaims;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.wiiee.core.domain.security.Constant.*;
+import static com.wiiee.core.domain.security.SecurityConstant.*;
 
 @Component
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
@@ -66,7 +66,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                         .getBody();
 
                 String user = body.getSubject();
-                String authorityClaim = (String) body.get(Constant.AUTHORITIES_KEY);
+                String authorityClaim = (String) body.get(SecurityConstant.AUTHORITIES_KEY);
 
                 List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 
