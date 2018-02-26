@@ -1,5 +1,7 @@
 package com.wiiee.core.platform.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 
 /**
@@ -28,6 +30,7 @@ public abstract class BaseData<TId extends Serializable> implements IData<TId>, 
         this.id = id;
     }
 
+    @JsonIgnore
     @Override
     public boolean isValid() {
         return true;
