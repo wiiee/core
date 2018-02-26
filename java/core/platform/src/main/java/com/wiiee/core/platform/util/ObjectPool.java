@@ -3,6 +3,7 @@ package com.wiiee.core.platform.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,22 +15,19 @@ public abstract class ObjectPool<T> {
 
     private int size;
 
-    public ObjectPool(Class<T> clazz) {
-        this.size = DEFAULT_SIZE;
-        init(clazz);
+    public ObjectPool(int size) {
+        this.size = size <= 0 ? DEFAULT_SIZE : size;
+        init();
     }
 
-    public ObjectPool(Class<T> clazz, int size) {
-        this.size = size;
-        init(clazz);
-    }
-
-    private void init(Class<T> clazz) {
+    private void init() {
         this.entries = new HashMap<>(size);
+
+        Class<T> type = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
         try {
             for (int i = 0; i < size; i++) {
-                T instance = clazz.newInstance();
+                T instance = type.newInstance();
                 entries.put(instance, new ObjectWrapper<>(instance, Boolean.FALSE));
             }
         } catch (Exception ex) {

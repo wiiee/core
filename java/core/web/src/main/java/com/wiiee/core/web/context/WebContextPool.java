@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebContextPool extends ObjectPool<WebContext> {
     public WebContextPool() {
-        super(WebContext.class, 256);
+        super(256);
     }
 }

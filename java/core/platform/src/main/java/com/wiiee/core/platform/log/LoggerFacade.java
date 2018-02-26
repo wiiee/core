@@ -1,42 +1,39 @@
 package com.wiiee.core.platform.log;
 
+import com.wiiee.core.platform.util.ObjectPool;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Created by wiiee on 9/10/2017.
- */
 @Component
-public class EsLogger implements ILogger {
-    private static final Logger _logger = LoggerFactory.getLogger(EsLogger.class);
+public class LoggerFacade {
+    private final Logger _logger = LoggerFactory.getLogger(LoggerFacade.class);
 
-    @Autowired
     private JestClient jestClient;
 
-    @Autowired
-    private LogEntryPool logEntryPool;
+    public LoggerFacade(JestClient jestClient) {
+        this.jestClient = jestClient;
+    }
 
-    @Override
-    public boolean log(ILogEntry entry) {
-        if (entry instanceof LogEntry && jestClient != null) {
+    //ToDo: use queue in future
+    public void log(ILogEntry entry, ObjectPool pool) {
+        if(this.jestClient != null){
             try {
                 String indexName = "core-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-                Index index = new Index.Builder(entry).index(indexName).type("log").build();
+                Index index = new Index.Builder(entry).index(indexName).type(entry.getType()).build();
                 jestClient.execute(index);
             } catch (Exception ex) {
                 _logger.error(ex.getMessage());
             } finally {
-                logEntryPool.free((LogEntry) entry);
+                if(pool != null){
+                    pool.free(entry);
+                }
             }
         }
-
-        return true;
     }
 }

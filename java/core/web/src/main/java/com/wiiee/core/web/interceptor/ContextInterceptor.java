@@ -1,20 +1,16 @@
 package com.wiiee.core.web.interceptor;
 
+import com.wiiee.core.domain.service.ServiceResult;
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.log.CommonError;
-import com.wiiee.core.platform.log.LogEntry;
-import com.wiiee.core.platform.log.LogEntryPool;
-import com.wiiee.core.platform.log.LoggerChain;
+import com.wiiee.core.platform.log.BaseLogEntry;
+import com.wiiee.core.platform.log.LoggerFacade;
+import com.wiiee.core.web.log.WebLogEntryPool;
 import com.wiiee.core.platform.util.GsonUtil;
 import com.wiiee.core.web.context.WebContext;
 import com.wiiee.core.web.context.WebContextPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -22,7 +18,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * Created by wiiee on 3/5/2017.
@@ -32,14 +27,14 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
     private static final Logger _logger = LoggerFactory.getLogger(ContextInterceptor.class);
 
     private IContextRepository contextRepository;
-    private LoggerChain loggerChain;
-    private LogEntryPool logEntryPool;
+    private LoggerFacade loggerFacade;
+    private WebLogEntryPool logEntryPool;
     private WebContextPool webContextPool;
 
     @Autowired
-    public ContextInterceptor(IContextRepository contextRepository, LoggerChain loggerChain, LogEntryPool logEntryPool, WebContextPool webContextPool) {
+    public ContextInterceptor(IContextRepository contextRepository, LoggerFacade loggerFacade, WebLogEntryPool logEntryPool, WebContextPool webContextPool) {
         this.contextRepository = contextRepository;
-        this.loggerChain = loggerChain;
+        this.loggerFacade = loggerFacade;
         this.logEntryPool = logEntryPool;
         this.webContextPool = webContextPool;
     }
@@ -47,24 +42,8 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         request.setAttribute("startTime", System.nanoTime());
-        HttpSession session = request.getSession();
 
-        String userId = null;
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if(authentication != null){
-            userId = authentication.getName();
-        }
-
-        contextRepository.setContext(
-                webContextPool.allocate().build(
-                        userId,
-                        session == null ? null : session.getId(),
-                        request.getRequestedSessionId(),
-                        request.getRequestURI(),
-                        request.getRemoteAddr(),
-                        HttpMethod.resolve(request.getMethod())));
+        contextRepository.setContext(webContextPool.allocate().build(request));
         return true;
     }
 
@@ -81,18 +60,23 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
             String methodName = method.getMethod().getName();
 
             try {
-                LogEntry entry = logEntryPool.allocate()
+                ServiceResult result = null;
+                if(context.getResponse() != null && context.getResponse() instanceof ServiceResult){
+                    result = (ServiceResult)context.getResponse();
+                }
+
+                BaseLogEntry entry = logEntryPool.allocate()
                         .build(
                                 context,
-                                "Web",
                                 className,
                                 methodName,
-                                CommonError.NoError.value(),
-                                null,
+                                result == null ? 0 : result.errorCode,
+                                result == null ? null : result.errorMsg,
                                 elapsed_milliseconds,
-                                null);
+                                context.getRequest(),
+                                context.getResponse());
 
-                loggerChain.log(entry);
+                loggerFacade.log(entry, logEntryPool);
             } catch (Exception ex) {
                 _logger.error(ex.getMessage());
             } finally {

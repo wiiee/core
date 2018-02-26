@@ -1,6 +1,7 @@
 package com.wiiee.core.web.api;
 
 import com.wiiee.core.domain.service.ServiceResult;
+import com.wiiee.core.platform.exception.CoreException;
 import com.wiiee.core.platform.property.AppProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
@@ -34,15 +35,15 @@ public class MyErrorController implements ErrorController {
             String errorMsg = (String)request.getAttribute("javax.servlet.error.message");
 
             if(errorMsg != null && errorMsg.equals("Authentication Failed: Bad credentials")){
-                return ServiceResult.INVALID_PWD;
+                return ServiceResult.getByException(CoreException.INVALID_PWD);
             }
 
             if(errorMsg != null && errorMsg.startsWith("Authentication Failed: ")){
-                return ServiceResult.INVALID_USERNAME;
+                return ServiceResult.getByException(CoreException.INVALID_USERNAME);
             }
         }
 
         RequestAttributes requestAttributes = new ServletRequestAttributes(request);
-        return new ServiceResult(response.getStatus(), (String)errorAttributes.getErrorAttributes(requestAttributes, false).get("error"));
+        return new ServiceResult(false, response.getStatus(), (String)errorAttributes.getErrorAttributes(requestAttributes, false).get("error"), null, null);
     }
 }

@@ -1,8 +1,12 @@
 package com.wiiee.core.domain.service;
 
 import com.wiiee.core.platform.data.IData;
+import com.wiiee.core.platform.exception.MyException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by wiiee on 9/17/2017.
@@ -16,34 +20,27 @@ public class ServiceResult<T extends IData> {
     public T data;
     public List<T> datum;
 
-    public static final ServiceResult SUCCESS = new ServiceResult();
+    private static Map<Integer, ServiceResult> _serviceResults;
 
-    public static final ServiceResult INVALID_USERNAME = new ServiceResult(100, "Id is invalid, please check it.");
-    public static final ServiceResult INVALID_PWD = new ServiceResult(101, "Password is invalid, please check it.");
-    public static final ServiceResult INVALID_USERNAME_OR_PWD = new ServiceResult(102, "Id or password is invalid, please check it.");
-    public static final ServiceResult USER_ALREADY_EXIST = new ServiceResult(103, "User is already exist.");
-
-
-    //返回ok
-    private ServiceResult(){
-        this.isSuccessful = true;
+    static {
+        _serviceResults = new ConcurrentHashMap<>();
     }
 
-    //返回ok和数据
-    public ServiceResult(T data) {
-        this.isSuccessful = true;
+    public static final ServiceResult SUCCESS = new ServiceResult(true, 0, null, null, null);
+
+    public ServiceResult(boolean isSuccessful, int errorCode, String errorMsg, T data, List<T> datum) {
+        this.isSuccessful = isSuccessful;
+        this.errorCode = errorCode;
+        this.errorMsg = errorMsg;
         this.data = data;
-    }
-
-    //返回ok和数据集
-    public ServiceResult(List<T> datum) {
-        this.isSuccessful = true;
         this.datum = datum;
     }
 
-    //返回错误的errorCode和errorMessage
-    public ServiceResult(int errorCode, String errorMsg) {
-        this.errorCode = errorCode;
-        this.errorMsg = errorMsg;
+    public static ServiceResult getByException(MyException myException){
+        if(!_serviceResults.containsKey(myException.errorCode)){
+            _serviceResults.put(myException.errorCode, new ServiceResult(false, myException.errorCode, myException.getMessage(), null, null));
+        }
+
+        return _serviceResults.get(myException.errorCode);
     }
 }

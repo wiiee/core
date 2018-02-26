@@ -2,6 +2,7 @@ package com.wiiee.core.sample.domain.service;
 
 import com.wiiee.core.domain.service.BaseService;
 import com.wiiee.core.domain.service.ServiceResult;
+import com.wiiee.core.platform.exception.CoreException;
 import com.wiiee.core.sample.domain.entity.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,14 +21,14 @@ public class UserService extends BaseService<User, String> implements UserDetail
     private final PasswordEncoder passwordEncoder;
 
     public UserService(MongoRepository<User, String> repository, PasswordEncoder passwordEncoder) {
-        super(repository, User.class);
+        super(repository);
 
         this.passwordEncoder = passwordEncoder;
     }
 
     public ServiceResult<User> signUp(User user) {
         if (user == null || StringUtils.isEmpty(user.getId()) || StringUtils.isEmpty(user.password)) {
-            return ServiceResult.INVALID_USERNAME_OR_PWD;
+            return ServiceResult.getByException(CoreException.INVALID_USERNAME_OR_PWD);
         }
 
         ServiceResult<User> result = get(user.getId());
@@ -39,7 +40,7 @@ public class UserService extends BaseService<User, String> implements UserDetail
             create(user);
             return ServiceResult.SUCCESS;
         } else {
-            return ServiceResult.USER_ALREADY_EXIST;
+            return ServiceResult.getByException(CoreException.USER_ALREADY_EXIST);
         }
     }
 
