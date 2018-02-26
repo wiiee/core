@@ -29,9 +29,14 @@ public abstract class BaseData<TId extends Serializable> implements IData<TId>, 
     }
 
     @Override
-    public boolean equals(Object o){
-        if(this.getClass().isInstance(o)){
-            BaseData other = (BaseData)o;
+    public boolean isValid() {
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this.getClass().isInstance(o)) {
+            BaseData other = (BaseData) o;
 
             return other.getId().equals(id);
         }
@@ -40,7 +45,7 @@ public abstract class BaseData<TId extends Serializable> implements IData<TId>, 
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return id.hashCode();
     }
 

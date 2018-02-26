@@ -109,55 +109,66 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
     public ServiceResult<T> get() {
         try {
-            return new ServiceResult<>(true, 0, null, null, repository.findAll());
+            return new ServiceResult<>(repository.findAll());
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
     public ServiceResult<T> get(Id id) {
+        if(id == null){
+            return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
+        }
+
         try {
             T entry = getCacheEntry(id);
-            return new ServiceResult<>(true, 0, null, entry != null ? entry : repository.findOne(id), null);
+            return new ServiceResult<>(entry != null ? entry : repository.findOne(id));
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
     public ServiceResult<T> get(Sort sort) {
         try {
-            return new ServiceResult<>(true, 0, null, null, repository.findAll(sort));
+            return new ServiceResult<>(repository.findAll(sort));
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
     public ServiceResult<T> getOne(Example<T> example) {
         try {
-            return new ServiceResult<>(true, 0, null, repository.findOne(example), null);
+            return new ServiceResult<>(repository.findOne(example));
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
     public ServiceResult<T> getAll(Example<T> example) {
         try {
-            return new ServiceResult<>(true, 0, null, null, repository.findAll(example));
+            return new ServiceResult<>(repository.findAll(example));
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
     public ServiceResult<T> get(Example<T> example, Sort sort) {
         try {
-            return new ServiceResult<>(true, 0, null, null, repository.findAll(example, sort));
+            return new ServiceResult<>(repository.findAll(example, sort));
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
-
     }
 
     public ServiceResult<T> create(T entity) {
+        if(entity == null){
+            return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
+        }
+
+        if(!entity.isValid()){
+            return ServiceResult.getByException(CoreException.EXCEPTION_INVALID_DATA);
+        }
+
         try {
             T result = repository.insert(entity);
 
@@ -167,12 +178,13 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             putCacheEntry(result.getId(), result);
 
-            return new ServiceResult<>(true, 0, null, result, null);
+            return new ServiceResult<>(result);
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
+    //ToDo: 检查数据有效性
     public ServiceResult<T> create(Iterable<T> entities) {
         try {
             List<T> result = repository.insert(entities);
@@ -187,13 +199,17 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
                 putCacheEntry(entity.getId(), entity);
             }
 
-            return new ServiceResult<>(true, 0, null, null, result);
+            return new ServiceResult<>(result);
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
     public ServiceResult<T> update(T entity) {
+        if(entity == null){
+            return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
+        }
+
         try {
             repository.save(entity);
 
@@ -205,10 +221,11 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
+    //ToDo: 检查数据有效性
     public ServiceResult<T> update(Iterable<T> entities) {
         try {
             repository.save(entities);
@@ -225,11 +242,15 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
     public ServiceResult<T> delete(Id id) {
+        if(id == null){
+            return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
+        }
+
         try {
             repository.delete(id);
 
@@ -241,10 +262,11 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 
+    //ToDo: 检查数据有效性
     public ServiceResult<T> delete(Iterable<T> entities) {
         try {
             repository.delete(entities);
@@ -259,7 +281,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             return ServiceResult.SUCCESS;
         } catch (Exception ex) {
-            return new ServiceResult<>(false, CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage(), null, null);
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
     }
 

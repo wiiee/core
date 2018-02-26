@@ -44,6 +44,6 @@ public class MyErrorController implements ErrorController {
         }
 
         RequestAttributes requestAttributes = new ServletRequestAttributes(request);
-        return new ServiceResult(false, response.getStatus(), (String)errorAttributes.getErrorAttributes(requestAttributes, false).get("error"), null, null);
+        return new ServiceResult(response.getStatus(), (String)errorAttributes.getErrorAttributes(requestAttributes, false).get("error"));
     }
 }
