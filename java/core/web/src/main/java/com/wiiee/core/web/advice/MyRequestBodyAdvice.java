@@ -2,6 +2,8 @@ package com.wiiee.core.web.advice;
 
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.context.IContextRepository;
+import com.wiiee.core.platform.data.BaseData;
+import com.wiiee.core.platform.util.BeanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -35,6 +37,10 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         IContext context = contextRepository.getCurrent();
+
+        if(body instanceof BaseData){
+            BeanUtil.rootLevelStringFieldsTrimToNull(body);
+        }
 
         if (context != null) {
             context.setRequest(body);
