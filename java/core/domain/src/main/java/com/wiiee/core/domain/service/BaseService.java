@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * Created by wang.na on 2016/11/7.
  */
+//ToDo: support mongodb field update
 public abstract class BaseService<T extends IData<Id>, Id extends Serializable> implements IService {
     private MongoRepository<T, Id> repository;
 
