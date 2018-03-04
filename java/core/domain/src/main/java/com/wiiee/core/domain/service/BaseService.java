@@ -16,10 +16,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -117,13 +119,32 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     }
 
     public ServiceResult<T> get(Id id) {
-        if(id == null){
+        if (id == null) {
             return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
         }
 
         try {
             T entry = getCacheEntry(id);
             return new ServiceResult<>(entry != null ? entry : repository.findOne(id));
+        } catch (Exception ex) {
+            return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
+        }
+    }
+
+    public ServiceResult<T> getByIds(List<Id> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
+        }
+
+        try {
+            List<T> result = new ArrayList<>();
+
+            ids.forEach(id -> {
+                T entry = getCacheEntry(id);
+                result.add(entry != null ? entry : repository.findOne(id));
+            });
+
+            return new ServiceResult<>(result);
         } catch (Exception ex) {
             return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
@@ -162,11 +183,11 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     }
 
     public ServiceResult<T> create(T entity) {
-        if(entity == null){
+        if (entity == null) {
             return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
         }
 
-        if(!entity.isValid()){
+        if (!entity.isValid()) {
             return ServiceResult.getByException(CoreException.EXCEPTION_INVALID_DATA);
         }
 
@@ -207,7 +228,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     }
 
     public ServiceResult<T> update(T entity) {
-        if(entity == null){
+        if (entity == null) {
             return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
         }
 
@@ -248,7 +269,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     }
 
     public ServiceResult<T> delete(Id id) {
-        if(id == null){
+        if (id == null) {
             return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
         }
 
