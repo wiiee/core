@@ -54,7 +54,7 @@ public class ServiceMonitor {
 
             return retVal;
         } catch (Exception ex) {
-            OtherLogEntry entry = otherLogEntryPool.allocate().build(ex);
+            OtherLogEntry entry = otherLogEntryPool.allocate().build(ex, null);
             loggerFacade.log(entry, otherLogEntryPool);
             return ServiceResult.getByException(CoreException.EXCEPTION_SERVICE);
         }
