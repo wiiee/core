@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -131,7 +132,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         }
     }
 
-    public ServiceResult<T> getByIds(List<Id> ids) {
+    public ServiceResult<T> getByIds(Collection<Id> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return ServiceResult.getByException(CoreException.EXCEPTION_NULL_PARAMETERS);
         }
