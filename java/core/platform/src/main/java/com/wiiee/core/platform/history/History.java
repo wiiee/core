@@ -12,6 +12,10 @@ import java.util.List;
 public class History extends BaseData<String> {
     private List<HistoryInfo> historyInfos;
 
+    public History() {
+
+    }
+
     public History(String id) {
         super(id);
         this.historyInfos = new ArrayList<>();
@@ -30,7 +34,7 @@ public class History extends BaseData<String> {
         this.historyInfos = historyInfos;
     }
 
-    public void addHistoryInfo(HistoryInfo info){
+    public void addHistoryInfo(HistoryInfo info) {
         historyInfos.add(info);
     }
 }
