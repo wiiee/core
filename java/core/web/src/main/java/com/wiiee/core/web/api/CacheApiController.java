@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by wang.na on 2017/7/19.
@@ -41,7 +42,7 @@ public class CacheApiController {
     }
 
     @RequestMapping(path = "/update/{name}", method = RequestMethod.POST)
-    public void updateCache(@PathVariable String name, @RequestBody javafx.util.Pair<String, String> data) {
+    public void updateCache(@PathVariable String name, @RequestBody Map.Entry<String, String> data) {
         cacheHelper.updateCacheWithString(name, data.getKey(), data.getValue());
     }
 }

@@ -1,13 +1,9 @@
 package com.wiiee.core.platform.util;
 
-import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wiiee on 2/5/2018.
@@ -15,18 +11,18 @@ import java.util.Map;
 public abstract class EnumUtil {
     private static final Logger _logger = LoggerFactory.getLogger(EnumUtil.class);
 
-    private static Map<String, List<Pair<String, Object>>> enums;
+    private static Map<String, List<Map.Entry<String, Object>>> enums;
 
     static {
         enums = new HashMap<>();
     }
 
-    public static List<Pair<String, Object>> getOptions(String name) {
+    public static List<Map.Entry<String, Object>> getOptions(String name) {
         if (enums.containsKey(name)) {
             return enums.get(name);
         }
 
-        List<Pair<String, Object>> pairs = new ArrayList<>();
+        List<Map.Entry<String, Object>> pairs = new ArrayList<>();
 
         try {
             Class<?> clazz = Class.forName(name);
@@ -39,7 +35,7 @@ public abstract class EnumUtil {
 
             if (items != null) {
                 for (Object item : items) {
-                    pairs.add(new Pair<>(item.toString(), item.toString()));
+                    pairs.add(new AbstractMap.SimpleEntry<>(item.toString(), item.toString()));
                 }
             }
         } catch (Exception ex) {
