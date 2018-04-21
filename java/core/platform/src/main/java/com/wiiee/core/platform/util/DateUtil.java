@@ -1,10 +1,7 @@
 package com.wiiee.core.platform.util;
 
-import com.wiiee.core.platform.util.date.DateRange;
-import io.searchbox.core.search.aggregation.DateRangeAggregation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.core.Local;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

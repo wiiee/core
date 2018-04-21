@@ -12,7 +12,7 @@ dependencies {
     compile("org.hibernate:hibernate-validator:5.3.5.Final")
     compile("javax.validation:validation-api:1.1.0.Final")
 
-    compile("io.searchbox:jest:5.3.3")
+//    compile("io.searchbox:jest:5.3.3")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
