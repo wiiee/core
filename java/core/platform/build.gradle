@@ -2,7 +2,7 @@ dependencies {
     compile("org.springframework:spring-web")
     compile("org.springframework.boot:spring-boot-starter-aop")
 //    compile("org.springframework.boot:spring-boot-starter-data-redis")
-//    compile("org.springframework.data:spring-data-elasticsearch")
+    compile("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 
     compile("com.google.code.gson:gson:2.8.1")
     compile("com.fasterxml.jackson.core:jackson-databind:2.8.10")

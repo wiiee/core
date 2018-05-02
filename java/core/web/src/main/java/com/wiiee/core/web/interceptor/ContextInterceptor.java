@@ -2,9 +2,8 @@ package com.wiiee.core.web.interceptor;
 
 import com.wiiee.core.domain.service.ServiceResult;
 import com.wiiee.core.platform.context.IContextRepository;
-import com.wiiee.core.platform.log.BaseLogEntry;
+import com.wiiee.core.platform.log.LogItem;
 import com.wiiee.core.platform.log.LoggerFacade;
-import com.wiiee.core.web.log.WebLogEntryPool;
 import com.wiiee.core.platform.util.GsonUtil;
 import com.wiiee.core.web.context.WebContext;
 import com.wiiee.core.web.context.WebContextPool;
@@ -28,14 +27,12 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
 
     private IContextRepository contextRepository;
     private LoggerFacade loggerFacade;
-    private WebLogEntryPool logEntryPool;
     private WebContextPool webContextPool;
 
     @Autowired
-    public ContextInterceptor(IContextRepository contextRepository, LoggerFacade loggerFacade, WebLogEntryPool logEntryPool, WebContextPool webContextPool) {
+    public ContextInterceptor(IContextRepository contextRepository, LoggerFacade loggerFacade, WebContextPool webContextPool) {
         this.contextRepository = contextRepository;
         this.loggerFacade = loggerFacade;
-        this.logEntryPool = logEntryPool;
         this.webContextPool = webContextPool;
     }
 
@@ -65,8 +62,7 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
                     result = (ServiceResult)context.getResponse();
                 }
 
-                BaseLogEntry entry = logEntryPool.allocate()
-                        .build(
+                LogItem item = new LogItem().build(
                                 context,
                                 className,
                                 methodName,
@@ -74,9 +70,9 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
                                 result == null ? null : result.errorMsg,
                                 elapsed_milliseconds,
                                 context.getRequest(),
-                                context.getResponse());
+                                context.getResponse(), null);
 
-                loggerFacade.log(entry, logEntryPool);
+                loggerFacade.log(item);
             } catch (Exception ex) {
                 _logger.error(ex.getMessage());
             } finally {

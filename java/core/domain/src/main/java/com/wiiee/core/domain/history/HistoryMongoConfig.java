@@ -30,13 +30,15 @@ public class HistoryMongoConfig extends AbstractMongoConfiguration {
     }
 
     @Override
-    public Mongo mongo() {
+    public MongoClient mongoClient() {
         return new MongoClient(new MongoClientURI(mongoProperties.determineUri()));
     }
 
     @Bean
     @Primary
     public MongoTemplate historyMongoTemplate() {
-        return new MongoTemplate(mongo(), getDatabaseName());
+        return new MongoTemplate(mongoClient(), getDatabaseName());
     }
+
+
 }

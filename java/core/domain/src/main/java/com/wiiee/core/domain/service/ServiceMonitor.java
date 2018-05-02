@@ -2,11 +2,8 @@ package com.wiiee.core.domain.service;
 
 import com.wiiee.core.platform.context.IContextRepository;
 import com.wiiee.core.platform.exception.CoreException;
-import com.wiiee.core.platform.log.BaseLogEntry;
+import com.wiiee.core.platform.log.LogItem;
 import com.wiiee.core.platform.log.LoggerFacade;
-import com.wiiee.core.domain.log.ServiceLogEntryPool;
-import com.wiiee.core.platform.log.other.OtherLogEntry;
-import com.wiiee.core.platform.log.other.OtherLogEntryPool;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,16 +15,10 @@ import org.springframework.stereotype.Component;
 public class ServiceMonitor {
     private LoggerFacade loggerFacade;
     private IContextRepository contextRepository;
-    private ServiceLogEntryPool logEntryPool;
-    private OtherLogEntryPool otherLogEntryPool;
 
     @Autowired
-    public ServiceMonitor(LoggerFacade loggerFacade, ServiceLogEntryPool logEntryPool,
-                          OtherLogEntryPool otherLogEntryPool,
-                          IContextRepository contextRepository) {
+    public ServiceMonitor(IContextRepository contextRepository, LoggerFacade loggerFacade) {
         this.loggerFacade = loggerFacade;
-        this.logEntryPool = logEntryPool;
-        this.otherLogEntryPool = otherLogEntryPool;
         this.contextRepository = contextRepository;
     }
 
@@ -40,7 +31,7 @@ public class ServiceMonitor {
 
             long elapsed_milliseconds = (endTime - startTime) / 1000000;
 
-            BaseLogEntry entry = logEntryPool.allocate().build(
+            LogItem item = new LogItem().build(
                     contextRepository.getCurrent(),
                     pjp.getTarget().getClass().getName(),
                     pjp.getSignature().getName(),
@@ -48,14 +39,13 @@ public class ServiceMonitor {
                     retVal.errorMsg,
                     elapsed_milliseconds,
                     pjp.getArgs(),
-                    retVal);
+                    retVal,
+                    null);
 
-            loggerFacade.log(entry, logEntryPool);
+            loggerFacade.log(item);
 
             return retVal;
         } catch (Exception ex) {
-            OtherLogEntry entry = otherLogEntryPool.allocate().build(ex, null);
-            loggerFacade.log(entry, otherLogEntryPool);
             return ServiceResult.getByException(CoreException.EXCEPTION_SERVICE);
         }
     }

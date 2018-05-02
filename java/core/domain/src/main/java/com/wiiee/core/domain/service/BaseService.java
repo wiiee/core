@@ -126,7 +126,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
         try {
             T entry = getCacheEntry(id);
-            return new ServiceResult<>(entry != null ? entry : repository.findOne(id));
+            return new ServiceResult<>(entry != null ? entry : repository.findById(id).get());
         } catch (Exception ex) {
             return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
@@ -142,7 +142,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
             ids.forEach(id -> {
                 T entry = getCacheEntry(id);
-                result.add(entry != null ? entry : repository.findOne(id));
+                result.add(entry != null ? entry : repository.findById(id).get());
             });
 
             return new ServiceResult<>(result);
@@ -161,7 +161,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
 
     public ServiceResult<T> getOne(Example<T> example) {
         try {
-            return new ServiceResult<>(repository.findOne(example));
+            return new ServiceResult<>(repository.findOne(example).get());
         } catch (Exception ex) {
             return new ServiceResult<>(CoreException.EXCEPTION_SERVICE.errorCode, ex.getMessage());
         }
@@ -251,7 +251,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     //ToDo: 检查数据有效性
     public ServiceResult<T> update(Iterable<T> entities) {
         try {
-            repository.save(entities);
+            repository.saveAll(entities);
 
             if (!isHistoryService()) {
                 for (T entity : entities) {
@@ -275,7 +275,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         }
 
         try {
-            repository.delete(id);
+            repository.deleteById(id);
 
             if (!isHistoryService()) {
                 _historyService.process(buildLogItem(buildId(id), null, HistoryType.Delete));
@@ -292,7 +292,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     //ToDo: 检查数据有效性
     public ServiceResult<T> delete(Iterable<T> entities) {
         try {
-            repository.delete(entities);
+            repository.deleteAll(entities);
 
             for (T entity : entities) {
                 if (!isHistoryService()) {

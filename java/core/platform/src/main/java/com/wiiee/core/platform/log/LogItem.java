@@ -3,10 +3,16 @@ package com.wiiee.core.platform.log;
 import com.google.gson.annotations.SerializedName;
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.util.GsonUtil;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.time.Instant;
 
-public abstract class BaseLogEntry implements ILogEntry {
+@Document(indexName = "core", type="core")
+public class LogItem {
+    @Id
+    public String id;
+
     //用户Id，sessionId
     public String userId;
     public String sessionId;
@@ -26,15 +32,17 @@ public abstract class BaseLogEntry implements ILogEntry {
     public String request;
     public String response;
 
+    public Object other;
+
     //时间戳
     @SerializedName("@timestamp")
     public String timestamp;
 
-    public BaseLogEntry(){
+    public LogItem(){
         this.timestamp = Instant.now().toString();
     }
 
-    public BaseLogEntry build(IContext context, String className, String methodName, int errorCode, String errorMsg, long elapsed_milliseconds, Object request, Object response) {
+    public LogItem build(IContext context, String className, String methodName, int errorCode, String errorMsg, long elapsed_milliseconds, Object request, Object response, Object other) {
         this.userId = context == null ? null : context.getUserId();
         this.sessionId = context == null ? null : context.getSessionId();
 
@@ -49,11 +57,8 @@ public abstract class BaseLogEntry implements ILogEntry {
         this.request = GsonUtil.toJson(request);
         this.response = GsonUtil.toJson(response);
 
-        return this;
-    }
+        this.other = other;
 
-    @Override
-    public String getType(){
-        return getClass().getSimpleName().split("LogEntry")[0];
+        return this;
     }
 }
