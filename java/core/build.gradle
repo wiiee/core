@@ -69,18 +69,30 @@ subprojects {
 }
 
 project(':platform') {
+    jar {
+        enabled = true
+    }
+
     bootJar {
         enabled = false
     }
 }
 
 project(':domain') {
+    jar {
+        enabled = true
+    }
+
     bootJar {
         enabled = false
     }
 }
 
 project(':web') {
+    jar {
+        enabled = true
+    }
+
     bootJar {
         enabled = false
     }
