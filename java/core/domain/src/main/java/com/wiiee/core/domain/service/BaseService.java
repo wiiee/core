@@ -9,7 +9,7 @@ import com.wiiee.core.platform.exception.CoreException;
 import com.wiiee.core.platform.history.HistoryInfo;
 import com.wiiee.core.platform.history.HistoryLogItem;
 import com.wiiee.core.platform.history.IHistoryService;
-import com.wiiee.core.platform.log.LoggerFacade;
+import com.wiiee.core.platform.log.LogWriter;
 import com.wiiee.core.platform.util.GsonUtil;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -35,7 +35,7 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
     private static IContextRepository _contextRepository;
     private static CacheManager _cacheManager;
     private static IHistoryService _historyService;
-    private static LoggerFacade _loggerFacade;
+    private static LogWriter _logWriter;
 
     private Class<T> type;
 
@@ -56,8 +56,8 @@ public abstract class BaseService<T extends IData<Id>, Id extends Serializable> 
         _historyService = historyService;
     }
 
-    protected void _setLoggerChain(LoggerFacade loggerFacade) {
-        _loggerFacade = loggerFacade;
+    protected void _setLoggerChain(LogWriter logWriter) {
+        _logWriter = logWriter;
     }
 
     @Override

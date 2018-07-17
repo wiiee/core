@@ -3,7 +3,7 @@ package com.wiiee.core.domain.service;
 import com.wiiee.core.platform.context.IContextRepository;
 import com.wiiee.core.platform.exception.CoreException;
 import com.wiiee.core.platform.log.LogItem;
-import com.wiiee.core.platform.log.LoggerFacade;
+import com.wiiee.core.platform.log.LogWriter;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ServiceMonitor {
-    private LoggerFacade loggerFacade;
+    private LogWriter logWriter;
     private IContextRepository contextRepository;
 
     @Autowired
-    public ServiceMonitor(IContextRepository contextRepository, LoggerFacade loggerFacade) {
-        this.loggerFacade = loggerFacade;
+    public ServiceMonitor(IContextRepository contextRepository, LogWriter logWriter) {
+        this.logWriter = logWriter;
         this.contextRepository = contextRepository;
     }
 
@@ -42,7 +42,7 @@ public class ServiceMonitor {
                     retVal,
                     null);
 
-            loggerFacade.log(item);
+            logWriter.log(item);
 
             return retVal;
         } catch (Exception ex) {

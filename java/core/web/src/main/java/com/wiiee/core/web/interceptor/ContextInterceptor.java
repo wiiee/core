@@ -3,7 +3,7 @@ package com.wiiee.core.web.interceptor;
 import com.wiiee.core.domain.service.ServiceResult;
 import com.wiiee.core.platform.context.IContextRepository;
 import com.wiiee.core.platform.log.LogItem;
-import com.wiiee.core.platform.log.LoggerFacade;
+import com.wiiee.core.platform.log.LogWriter;
 import com.wiiee.core.platform.util.GsonUtil;
 import com.wiiee.core.web.context.WebContext;
 import com.wiiee.core.web.context.WebContextPool;
@@ -26,13 +26,13 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
     private static final Logger _logger = LoggerFactory.getLogger(ContextInterceptor.class);
 
     private IContextRepository contextRepository;
-    private LoggerFacade loggerFacade;
+    private LogWriter logWriter;
     private WebContextPool webContextPool;
 
     @Autowired
-    public ContextInterceptor(IContextRepository contextRepository, LoggerFacade loggerFacade, WebContextPool webContextPool) {
+    public ContextInterceptor(IContextRepository contextRepository, LogWriter logWriter, WebContextPool webContextPool) {
         this.contextRepository = contextRepository;
-        this.loggerFacade = loggerFacade;
+        this.logWriter = logWriter;
         this.webContextPool = webContextPool;
     }
 
@@ -72,7 +72,7 @@ public class ContextInterceptor extends HandlerInterceptorAdapter {
                                 context.getRequest(),
                                 context.getResponse(), null);
 
-                loggerFacade.log(item);
+                logWriter.log(item);
             } catch (Exception ex) {
                 _logger.error(ex.getMessage());
             } finally {

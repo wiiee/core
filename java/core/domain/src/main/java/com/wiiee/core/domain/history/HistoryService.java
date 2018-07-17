@@ -5,7 +5,7 @@ import com.wiiee.core.platform.context.IContextRepository;
 import com.wiiee.core.platform.history.History;
 import com.wiiee.core.platform.history.HistoryLogItem;
 import com.wiiee.core.platform.history.IHistoryService;
-import com.wiiee.core.platform.log.LoggerFacade;
+import com.wiiee.core.platform.log.LogWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class HistoryService extends BaseService<History, String> implements IHis
     private CacheManager cacheManager;
 
     @Autowired
-    private LoggerFacade loggerFacade;
+    private LogWriter logWriter;
 
     public HistoryService(MongoRepository<History, String> repository) {
         super(repository);
@@ -40,7 +40,7 @@ public class HistoryService extends BaseService<History, String> implements IHis
         _setContextRepository(contextRepository);
         _setHistoryService(this);
         _setCacheManager(cacheManager);
-        _setLoggerChain(loggerFacade);
+        _setLoggerChain(logWriter);
     }
 
     @Override

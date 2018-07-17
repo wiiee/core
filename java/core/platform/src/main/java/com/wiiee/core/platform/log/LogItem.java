@@ -3,14 +3,10 @@ package com.wiiee.core.platform.log;
 import com.google.gson.annotations.SerializedName;
 import com.wiiee.core.platform.context.IContext;
 import com.wiiee.core.platform.util.GsonUtil;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.time.Instant;
 
-@Document(indexName = "core", type="core")
 public class LogItem {
-    @Id
     public String id;
 
     //用户Id，sessionId
@@ -33,6 +29,8 @@ public class LogItem {
     public String response;
 
     public Object other;
+
+    public String type;
 
     //时间戳
     @SerializedName("@timestamp")
@@ -58,6 +56,8 @@ public class LogItem {
         this.response = GsonUtil.toJson(response);
 
         this.other = other;
+
+        this.type = "default";
 
         return this;
     }

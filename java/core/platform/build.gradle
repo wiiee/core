@@ -2,7 +2,7 @@ dependencies {
     compile("org.springframework:spring-web")
     compile("org.springframework.boot:spring-boot-starter-aop")
 //    compile("org.springframework.boot:spring-boot-starter-data-redis")
-    compile("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+//    compile("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 
     compile("com.google.code.gson:gson:2.8.1")
     compile("com.fasterxml.jackson.core:jackson-databind:2.8.10")
@@ -12,7 +12,8 @@ dependencies {
     compile("org.hibernate:hibernate-validator:5.3.5.Final")
     compile("javax.validation:validation-api:1.1.0.Final")
 
-//    compile("io.searchbox:jest:5.3.3")
+    //Jest
+    compile("io.searchbox:jest:5.3.3")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
